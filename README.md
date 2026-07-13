@@ -245,5 +245,6 @@ LIVE MATE는
 * AI 기반 개인 맞춤 관광 서비스 제공
 
 <img width="853" height="1844" alt="app" src="https://github.com/user-attachments/assets/f1e3694d-6e62-44c7-aed8-f9544e9b3992" />
-<img width="1536" height="1024" alt="ChatGPT Image Jul 13, 2026, 04_57_39 PM" src="https://github.com/user-attachments/assets/c3dbefa8-5c0b-4a60-b3cb-22b8f4afc651" />
+<img width="1536" height="1024" alt="ChatGPT Image Jul 13, 2026, 05_06_35 PM" src="https://github.com/user-attachments/assets/6d30b995-e67a-47f0-8e60-14a52533ab6f" />
+
 
