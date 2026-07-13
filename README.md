@@ -1,8 +1,6 @@
 # 2026_TOUR_COMPETITION
 
-# README
-
-# LIVE MATE
+# ROAMATE(ROAM + MATE)
 
 ### AI 기반 실시간 여행 동반 가이드 & 여행 비서
 
