@@ -1,0 +1,22 @@
+spring:
+  application:
+    name: busan-ai-map
+
+server:
+  port: 8080
+
+external-api:
+  naver:
+    search:
+      client-id: ${NAVER_SEARCH_CLIENT_ID:}
+      client-secret: ${NAVER_SEARCH_CLIENT_SECRET:}
+  gemini:
+    api-key: ${GEMINI_API_KEY:}
+  weather:
+    service-key: ${KMA_SERVICE_KEY:}
+
+app:
+  cors:
+    allowed-origins:
+      - ${FRONTEND_URL:http://localhost:5173}
+

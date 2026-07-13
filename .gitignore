@@ -1,0 +1,27 @@
+# 환경변수 및 비밀 설정
+.env
+.env.*
+!.env.example
+
+application-secret.yml
+application-local.yml
+
+frontend/.env
+frontend/.env.*
+!frontend/.env.example
+
+backend/.env
+backend/.env.*
+
+*.pem
+*.key
+
+# 빌드 결과 및 IDE 설정
+backend/.gradle/
+backend/build/
+.gradle-user-home/
+frontend/node_modules/
+frontend/dist/
+.idea/
+.vscode/
+*.iml
