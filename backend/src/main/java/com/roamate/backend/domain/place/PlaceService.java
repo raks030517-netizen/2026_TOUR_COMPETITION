@@ -2,11 +2,12 @@ package com.roamate.backend.domain.place;
 
 import com.roamate.backend.common.ApiException;
 import com.roamate.backend.common.ErrorCode;
+import com.roamate.backend.common.PageResponse;
 import com.roamate.backend.domain.place.condition.PlaceConditionProvider;
 import com.roamate.backend.domain.place.dto.PlaceConditionResponse;
 import com.roamate.backend.domain.place.dto.PlaceCreateRequest;
 import com.roamate.backend.domain.place.dto.PlaceResponse;
-import java.util.List;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,16 +37,15 @@ public class PlaceService {
                         .address(request.address())
                         .latitude(request.latitude())
                         .longitude(request.longitude())
+                        .imageUrl(request.imageUrl())
                         .build());
 
         placeRepository.save(place);
         return PlaceResponse.from(place);
     }
 
-    public List<PlaceResponse> getAll() {
-        return placeRepository.findAll().stream()
-                .map(PlaceResponse::from)
-                .toList();
+    public PageResponse<PlaceResponse> getAll(Pageable pageable) {
+        return PageResponse.of(placeRepository.findAll(pageable).map(PlaceResponse::from));
     }
 
     public PlaceConditionResponse getCondition(Long placeId) {

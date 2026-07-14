@@ -1,11 +1,13 @@
 package com.roamate.backend.domain.place;
 
 import com.roamate.backend.common.ApiResponse;
+import com.roamate.backend.common.PageResponse;
 import com.roamate.backend.domain.place.dto.PlaceConditionResponse;
 import com.roamate.backend.domain.place.dto.PlaceCreateRequest;
 import com.roamate.backend.domain.place.dto.PlaceResponse;
 import jakarta.validation.Valid;
-import java.util.List;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -29,8 +31,8 @@ public class PlaceController {
     }
 
     @GetMapping
-    public ApiResponse<List<PlaceResponse>> getAll() {
-        return ApiResponse.ok(placeService.getAll());
+    public ApiResponse<PageResponse<PlaceResponse>> getAll(@PageableDefault(size = 20) Pageable pageable) {
+        return ApiResponse.ok(placeService.getAll(pageable));
     }
 
     @GetMapping("/{placeId}/condition")

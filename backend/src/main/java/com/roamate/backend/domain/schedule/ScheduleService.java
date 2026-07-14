@@ -2,6 +2,7 @@ package com.roamate.backend.domain.schedule;
 
 import com.roamate.backend.common.ApiException;
 import com.roamate.backend.common.ErrorCode;
+import com.roamate.backend.common.PageResponse;
 import com.roamate.backend.domain.place.Place;
 import com.roamate.backend.domain.place.PlaceRepository;
 import com.roamate.backend.domain.schedule.dto.ReorderRequest;
@@ -17,6 +18,8 @@ import com.roamate.backend.domain.user.UserRepository;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -69,8 +72,8 @@ public class ScheduleService {
         return ScheduleResponse.of(schedule, items, aiStatus);
     }
 
-    public List<ScheduleResponse> getMySchedules(Long userId) {
-        return scheduleRepository.findAllByUserId(userId).stream()
+    public PageResponse<ScheduleResponse> getMySchedules(Long userId, Pageable pageable) {
+        Page<ScheduleResponse> page = scheduleRepository.findAllByUserId(userId, pageable)
                 .map(schedule -> {
                     List<ScheduleItemResponse> items = scheduleItemRepository
                             .findAllByScheduleIdOrderByVisitOrderAsc(schedule.getId())
@@ -81,8 +84,8 @@ public class ScheduleService {
                             .map(ScheduleAiStatusResponse::from)
                             .orElse(null);
                     return ScheduleResponse.of(schedule, items, aiStatus);
-                })
-                .toList();
+                });
+        return PageResponse.of(page);
     }
 
     @Transactional

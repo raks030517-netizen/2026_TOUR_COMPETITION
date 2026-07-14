@@ -1,6 +1,7 @@
 package com.roamate.backend.domain.schedule;
 
 import com.roamate.backend.common.ApiResponse;
+import com.roamate.backend.common.PageResponse;
 import com.roamate.backend.domain.schedule.dto.ReorderRequest;
 import com.roamate.backend.domain.schedule.dto.ScheduleCreateRequest;
 import com.roamate.backend.domain.schedule.dto.ScheduleItemCreateRequest;
@@ -10,6 +11,9 @@ import com.roamate.backend.domain.schedule.dto.ScheduleResponse;
 import com.roamate.backend.domain.schedule.dto.ScheduleUpdateRequest;
 import jakarta.validation.Valid;
 import java.util.List;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -43,8 +47,10 @@ public class ScheduleController {
     }
 
     @GetMapping
-    public ApiResponse<List<ScheduleResponse>> getMySchedules(@AuthenticationPrincipal Long userId) {
-        return ApiResponse.ok(scheduleService.getMySchedules(userId));
+    public ApiResponse<PageResponse<ScheduleResponse>> getMySchedules(
+            @AuthenticationPrincipal Long userId,
+            @PageableDefault(size = 20, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
+        return ApiResponse.ok(scheduleService.getMySchedules(userId, pageable));
     }
 
     @PutMapping("/{scheduleId}")
