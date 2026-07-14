@@ -1,0 +1,125 @@
+:root {
+  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: #17202a;
+  background: #f5f7fa;
+  font-synthesis: none;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+.main-page {
+  display: grid;
+  grid-template-rows: auto minmax(380px, 1fr) auto;
+  gap: 16px;
+  min-height: 100vh;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+header h1,
+.chat-panel h2 {
+  margin: 0;
+}
+
+.map-placeholder,
+.chat-panel {
+  border: 1px solid #d8dee6;
+  border-radius: 12px;
+  background: #fff;
+  padding: 24px;
+}
+
+.map-placeholder {
+  display: grid;
+  place-content: center;
+  text-align: center;
+  color: #51606f;
+}
+
+.map-panel {
+  position: relative;
+  min-height: 500px;
+  overflow: hidden;
+  border: 1px solid #d8dee6;
+  border-radius: 12px;
+  background: #eef2f6;
+}
+
+.naver-map {
+  width: 100%;
+  height: 100%;
+  min-height: 500px;
+}
+
+.map-error {
+  position: absolute;
+  inset: 50% auto auto 50%;
+  width: min(90%, 520px);
+  margin: 0;
+  padding: 16px 20px;
+  border-radius: 8px;
+  color: #9b1c1c;
+  background: #fff;
+  box-shadow: 0 4px 16px rgb(0 0 0 / 12%);
+  text-align: center;
+  transform: translate(-50%, -50%);
+}
+
+.chat-panel form {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.chat-panel input {
+  flex: 1;
+  min-width: 0;
+  border: 1px solid #aab4c0;
+  border-radius: 8px;
+  padding: 12px 14px;
+}
+
+.chat-panel button {
+  border: 0;
+  border-radius: 8px;
+  padding: 12px 24px;
+  color: #fff;
+  background: #1367d1;
+  cursor: pointer;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (max-width: 600px) {
+  .main-page {
+    padding: 12px;
+  }
+
+  .chat-panel form {
+    flex-direction: column;
+  }
+}

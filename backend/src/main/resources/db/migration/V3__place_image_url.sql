@@ -1,1 +1,0 @@
-ALTER TABLE places ADD COLUMN image_url VARCHAR(1000);
