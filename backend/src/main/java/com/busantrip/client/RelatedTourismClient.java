@@ -98,35 +98,45 @@ public class RelatedTourismClient {
             String keyword,
             int pageNo,
             int numOfRows
-    ){
+    ) {
         return webClient.get()
-                .uri(uriBuilder -> uriBuilder
-                        .path(path)
-                        .queryParam("serviceKey", "{serviceKey}")
-                        .queryParam("pageNo", pageNo)
-                        .queryParam("numOfRows", numOfRows)
-                        .queryParam("MobileOS", MOBILE_OS)
-                        .queryParam("MobileApp", MOBILE_APP)
-                        .queryParam("baseYm", baseYm)
-                        .queryParam("areaCd", BUSAN_AREA_CODE)
-                        .queryParam("signguCd", signguCd)
-                        .queryParam("_type", "json")
-                        .build(serviceKey)
-                ).retrieve()
+
+                .uri(uriBuilder -> {
+
+                    UriBuilder builder = uriBuilder
+                            // 전달받은 API 경로 사용
+                            .path(path)
+                            .queryParam("serviceKey", "{serviceKey}")
+                            .queryParam("pageNo", pageNo)
+                            .queryParam("numOfRows", numOfRows)
+                            .queryParam("MobileOS", MOBILE_OS)
+                            .queryParam("MobileApp", MOBILE_APP)
+                            .queryParam("baseYm", baseYm)
+                            .queryParam("areaCd", BUSAN_AREA_CODE)
+                            .queryParam("signguCd", signguCd)
+                            .queryParam("_type", "json");
+
+                    // 검색 API를 호출할 때만 검색어 추가
+                    if (keyword != null && !keyword.isBlank()) {
+                        builder.queryParam("keyword", keyword);
+                    }
+
+                    return builder.build(serviceKey);
+                })
+                .retrieve()
                 .onStatus(
                         status -> status.isError(),
                         response -> response.bodyToMono(String.class)
                                 .defaultIfEmpty("응답 본문 없음")
                                 .flatMap(errorBody -> Mono.error(
                                         new IllegalStateException(
-                                                "기초지자체 중심 관광지 API 호출 실패: "
+                                                "연관 관광지 API 호출 실패: "
                                                         + response.statusCode()
                                                         + ", 응답: " + errorBody
                                         )
                                 ))
                 )
                 .bodyToMono(String.class);
-
     }
 
 
