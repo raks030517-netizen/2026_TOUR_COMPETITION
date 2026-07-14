@@ -34,8 +34,8 @@ public class ScheduleService {
     }
 
     @Transactional
-    public ScheduleResponse createSchedule(ScheduleCreateRequest request) {
-        User user = userRepository.findById(request.userId())
+    public ScheduleResponse createSchedule(Long userId, ScheduleCreateRequest request) {
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ApiException(ErrorCode.ENTITY_NOT_FOUND, "사용자를 찾을 수 없습니다."));
 
         Schedule schedule = Schedule.builder()
@@ -48,8 +48,8 @@ public class ScheduleService {
         return ScheduleResponse.of(schedule, List.of());
     }
 
-    public ScheduleResponse getSchedule(Long scheduleId) {
-        Schedule schedule = findSchedule(scheduleId);
+    public ScheduleResponse getSchedule(Long scheduleId, Long userId) {
+        Schedule schedule = findOwnedSchedule(scheduleId, userId);
         List<ScheduleItemResponse> items = scheduleItemRepository.findAllByScheduleIdOrderByVisitOrderAsc(scheduleId)
                 .stream()
                 .map(ScheduleItemResponse::from)
@@ -57,7 +57,7 @@ public class ScheduleService {
         return ScheduleResponse.of(schedule, items);
     }
 
-    public List<ScheduleResponse> getSchedulesByUser(Long userId) {
+    public List<ScheduleResponse> getMySchedules(Long userId) {
         return scheduleRepository.findAllByUserId(userId).stream()
                 .map(schedule -> {
                     List<ScheduleItemResponse> items = scheduleItemRepository
@@ -71,8 +71,8 @@ public class ScheduleService {
     }
 
     @Transactional
-    public ScheduleItemResponse addItem(Long scheduleId, ScheduleItemCreateRequest request) {
-        Schedule schedule = findSchedule(scheduleId);
+    public ScheduleItemResponse addItem(Long scheduleId, Long userId, ScheduleItemCreateRequest request) {
+        Schedule schedule = findOwnedSchedule(scheduleId, userId);
         Place place = placeRepository.findById(request.placeId())
                 .orElseThrow(() -> new ApiException(ErrorCode.ENTITY_NOT_FOUND, "장소를 찾을 수 없습니다."));
 
@@ -88,8 +88,14 @@ public class ScheduleService {
         return ScheduleItemResponse.from(item);
     }
 
-    private Schedule findSchedule(Long scheduleId) {
-        return scheduleRepository.findById(scheduleId)
+    public Schedule findOwnedSchedule(Long scheduleId, Long userId) {
+        Schedule schedule = scheduleRepository.findById(scheduleId)
                 .orElseThrow(() -> new ApiException(ErrorCode.ENTITY_NOT_FOUND, "일정을 찾을 수 없습니다."));
+
+        if (!schedule.getUser().getId().equals(userId)) {
+            throw new ApiException(ErrorCode.FORBIDDEN, "본인 일정만 접근할 수 있습니다.");
+        }
+
+        return schedule;
     }
 }

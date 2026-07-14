@@ -8,5 +8,5 @@ import com.roamate.backend.domain.action.dto.ActionResponse;
  */
 public interface OneTouchActionService {
 
-    ActionResponse execute(ActionType actionType, Long scheduleId);
+    ActionResponse execute(ActionType actionType, Long scheduleId, Long userId);
 }

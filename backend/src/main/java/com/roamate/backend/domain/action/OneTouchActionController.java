@@ -4,6 +4,7 @@ import com.roamate.backend.common.ApiResponse;
 import com.roamate.backend.domain.action.dto.ActionRequest;
 import com.roamate.backend.domain.action.dto.ActionResponse;
 import jakarta.validation.Valid;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -21,8 +22,9 @@ public class OneTouchActionController {
     }
 
     @PostMapping("/{actionType}")
-    public ApiResponse<ActionResponse> execute(@PathVariable ActionType actionType,
+    public ApiResponse<ActionResponse> execute(@AuthenticationPrincipal Long userId,
+                                                 @PathVariable ActionType actionType,
                                                  @Valid @RequestBody ActionRequest request) {
-        return ApiResponse.ok(oneTouchActionService.execute(actionType, request.scheduleId()));
+        return ApiResponse.ok(oneTouchActionService.execute(actionType, request.scheduleId(), userId));
     }
 }
