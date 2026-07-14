@@ -46,6 +46,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/api/health", "/api/users/signup", "/api/auth/login").permitAll()
+                        .requestMatchers("/api/places/*/favorite", "/api/places/favorites").authenticated()
                         .requestMatchers("/api/places/**", "/api/routes/**").permitAll()
                         .requestMatchers("/api/schedules/*/ai-status").permitAll()
                         .anyRequest().authenticated())
