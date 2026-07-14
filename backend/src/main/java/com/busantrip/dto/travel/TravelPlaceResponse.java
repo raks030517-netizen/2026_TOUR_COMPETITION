@@ -1,7 +1,8 @@
-package com.busantrip.dto.response;
+package com.busantrip.dto.travel;
 
-public record PlaceResponse(
+public record TravelPlaceResponse(
         String name,
+        PlaceType type,
         String category,
         String address,
         String roadAddress,

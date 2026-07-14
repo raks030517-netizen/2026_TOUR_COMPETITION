@@ -12,11 +12,17 @@ external-api:
       client-secret: ${NAVER_SEARCH_CLIENT_SECRET:}
   gemini:
     api-key: ${GEMINI_API_KEY:}
+  gemma:
+    api-key: ${GEMMA_API_KEY:}
+    model: ${GEMMA_MODEL:}
+    base-url: ${GEMMA_BASE_URL:https://generativelanguage.googleapis.com/v1beta}
   weather:
     service-key: ${KMA_SERVICE_KEY:}
+  avi:
+    service-key: ${PUBLIC_DATA_SERVICE_KEY:}
+    base-url: ${BUSAN_AVI_BASE_URL:https://apis.data.go.kr/6260000/BusanITSAVI}
 
 app:
   cors:
     allowed-origins:
       - ${FRONTEND_URL:http://localhost:5173}
-

@@ -12,6 +12,8 @@ import org.springframework.test.web.reactive.server.WebTestClient;
                 "external-api.naver.search.client-id=test-naver-id",
                 "external-api.naver.search.client-secret=test-naver-secret",
                 "external-api.gemini.api-key=test-gemini-key",
+                "external-api.gemma.api-key=test-gemma-key",
+                "external-api.gemma.model=test-gemma-model",
                 "external-api.weather.service-key=test-weather-key"
         }
 )
@@ -64,5 +66,62 @@ class BusanTripApplicationTests {
                 .jsonPath("$.clientSecret").doesNotExist()
                 .jsonPath("$.apiKey").doesNotExist()
                 .jsonPath("$.serviceKey").doesNotExist();
+    }
+
+    @Test
+    void placeSearchRejectsMissingQuery() {
+        webTestClient.get()
+                .uri("/api/places/search")
+                .exchange()
+                .expectStatus().isBadRequest();
+    }
+
+    @Test
+    void placeSearchRejectsBlankQuery() {
+        webTestClient.get()
+                .uri(uriBuilder -> uriBuilder
+                        .path("/api/places/search")
+                        .queryParam("query", "   ")
+                        .build())
+                .exchange()
+                .expectStatus().isBadRequest();
+    }
+
+    @Test
+    void llmAnalyzeRejectsBlankMessage() {
+        webTestClient.post()
+                .uri("/api/llm/analyze")
+                .header("Content-Type", "application/json")
+                .bodyValue("""
+                        {"message":"   "}
+                        """)
+                .exchange()
+                .expectStatus().isBadRequest();
+    }
+
+    @Test
+    void llmAnalyzeRejectsOutsideBusanRequestWithoutCallingGemma() {
+        webTestClient.post()
+                .uri("/api/llm/analyze")
+                .header("Content-Type", "application/json")
+                .bodyValue("""
+                        {"message":"서울 강남 관광지를 알려주세요."}
+                        """)
+                .exchange()
+                .expectStatus().isBadRequest()
+                .expectBody()
+                .jsonPath("$.message").isEqualTo("부산 지역 요청만 분석할 수 있습니다.");
+    }
+
+    @Test
+    void travelSearchRejectsBlankMessage() {
+        webTestClient.post()
+                .uri("/api/travel/search")
+                .header("Content-Type", "application/json")
+                .bodyValue("""
+                        {"message":"   "}
+                        """)
+                .exchange()
+                .expectStatus().isBadRequest();
     }
 }
