@@ -37,13 +37,18 @@ public class Place extends BaseTimeEntity {
 
     private Double longitude;
 
+    @Column(name = "image_url", length = 1000)
+    private String imageUrl;
+
     @Builder
-    public Place(String contentId, String name, String category, String address, Double latitude, Double longitude) {
+    public Place(String contentId, String name, String category, String address, Double latitude, Double longitude,
+                 String imageUrl) {
         this.contentId = contentId;
         this.name = name;
         this.category = category;
         this.address = address;
         this.latitude = latitude;
         this.longitude = longitude;
+        this.imageUrl = imageUrl;
     }
 }

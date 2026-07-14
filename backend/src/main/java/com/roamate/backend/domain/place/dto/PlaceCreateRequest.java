@@ -9,6 +9,7 @@ public record PlaceCreateRequest(
         String category,
         String address,
         @NotNull Double latitude,
-        @NotNull Double longitude
+        @NotNull Double longitude,
+        String imageUrl
 ) {
 }
