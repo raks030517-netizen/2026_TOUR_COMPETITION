@@ -1,0 +1,44 @@
+package com.roamate.backend.domain.place;
+
+import com.roamate.backend.domain.place.dto.PlaceCreateRequest;
+import com.roamate.backend.domain.place.dto.PlaceResponse;
+import java.util.List;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+/**
+ * 관광공사 OpenAPI 연동(BE-1) 전까지 임시로 장소를 수동 등록하기 위한 서비스.
+ * 실제 데이터 수집이 붙으면 이 API 대신 배치/스케줄러가 채우는 방식으로 대체될 수 있다.
+ */
+@Service
+@Transactional(readOnly = true)
+public class PlaceService {
+
+    private final PlaceRepository placeRepository;
+
+    public PlaceService(PlaceRepository placeRepository) {
+        this.placeRepository = placeRepository;
+    }
+
+    @Transactional
+    public PlaceResponse register(PlaceCreateRequest request) {
+        Place place = placeRepository.findByContentId(request.contentId())
+                .orElseGet(() -> Place.builder()
+                        .contentId(request.contentId())
+                        .name(request.name())
+                        .category(request.category())
+                        .address(request.address())
+                        .latitude(request.latitude())
+                        .longitude(request.longitude())
+                        .build());
+
+        placeRepository.save(place);
+        return PlaceResponse.from(place);
+    }
+
+    public List<PlaceResponse> getAll() {
+        return placeRepository.findAll().stream()
+                .map(PlaceResponse::from)
+                .toList();
+    }
+}
