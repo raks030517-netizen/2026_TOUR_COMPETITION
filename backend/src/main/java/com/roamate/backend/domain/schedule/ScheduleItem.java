@@ -57,4 +57,9 @@ public class ScheduleItem extends BaseTimeEntity {
     public void reorder(int visitOrder) {
         this.visitOrder = visitOrder;
     }
+
+    public void updatePlannedTimes(LocalDateTime plannedArrival, LocalDateTime plannedDeparture) {
+        this.plannedArrival = plannedArrival;
+        this.plannedDeparture = plannedDeparture;
+    }
 }

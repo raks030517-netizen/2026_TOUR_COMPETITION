@@ -54,4 +54,9 @@ public class Schedule extends BaseTimeEntity {
     public void changeStatus(ScheduleStatus status) {
         this.status = status;
     }
+
+    public void update(String title, LocalDate travelDate) {
+        this.title = title;
+        this.travelDate = travelDate;
+    }
 }
