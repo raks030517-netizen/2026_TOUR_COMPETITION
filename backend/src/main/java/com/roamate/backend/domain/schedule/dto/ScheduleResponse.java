@@ -10,15 +10,17 @@ public record ScheduleResponse(
         String title,
         LocalDate travelDate,
         ScheduleStatus status,
-        List<ScheduleItemResponse> items
+        List<ScheduleItemResponse> items,
+        ScheduleAiStatusResponse aiStatus
 ) {
-    public static ScheduleResponse of(Schedule schedule, List<ScheduleItemResponse> items) {
+    public static ScheduleResponse of(Schedule schedule, List<ScheduleItemResponse> items, ScheduleAiStatusResponse aiStatus) {
         return new ScheduleResponse(
                 schedule.getId(),
                 schedule.getTitle(),
                 schedule.getTravelDate(),
                 schedule.getStatus(),
-                items
+                items,
+                aiStatus
         );
     }
 }

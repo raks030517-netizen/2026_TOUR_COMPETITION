@@ -5,6 +5,7 @@ import com.roamate.backend.common.ErrorCode;
 import com.roamate.backend.domain.place.Place;
 import com.roamate.backend.domain.place.PlaceRepository;
 import com.roamate.backend.domain.schedule.dto.ReorderRequest;
+import com.roamate.backend.domain.schedule.dto.ScheduleAiStatusResponse;
 import com.roamate.backend.domain.schedule.dto.ScheduleCreateRequest;
 import com.roamate.backend.domain.schedule.dto.ScheduleItemCreateRequest;
 import com.roamate.backend.domain.schedule.dto.ScheduleItemResponse;
@@ -25,15 +26,18 @@ public class ScheduleService {
 
     private final ScheduleRepository scheduleRepository;
     private final ScheduleItemRepository scheduleItemRepository;
+    private final ScheduleAiStatusRepository scheduleAiStatusRepository;
     private final UserRepository userRepository;
     private final PlaceRepository placeRepository;
 
     public ScheduleService(ScheduleRepository scheduleRepository,
                             ScheduleItemRepository scheduleItemRepository,
+                            ScheduleAiStatusRepository scheduleAiStatusRepository,
                             UserRepository userRepository,
                             PlaceRepository placeRepository) {
         this.scheduleRepository = scheduleRepository;
         this.scheduleItemRepository = scheduleItemRepository;
+        this.scheduleAiStatusRepository = scheduleAiStatusRepository;
         this.userRepository = userRepository;
         this.placeRepository = placeRepository;
     }
@@ -50,7 +54,7 @@ public class ScheduleService {
                 .build();
 
         scheduleRepository.save(schedule);
-        return ScheduleResponse.of(schedule, List.of());
+        return ScheduleResponse.of(schedule, List.of(), null);
     }
 
     public ScheduleResponse getSchedule(Long scheduleId, Long userId) {
@@ -59,7 +63,10 @@ public class ScheduleService {
                 .stream()
                 .map(ScheduleItemResponse::from)
                 .toList();
-        return ScheduleResponse.of(schedule, items);
+        ScheduleAiStatusResponse aiStatus = scheduleAiStatusRepository.findByScheduleId(scheduleId)
+                .map(ScheduleAiStatusResponse::from)
+                .orElse(null);
+        return ScheduleResponse.of(schedule, items, aiStatus);
     }
 
     public List<ScheduleResponse> getMySchedules(Long userId) {
@@ -70,7 +77,10 @@ public class ScheduleService {
                             .stream()
                             .map(ScheduleItemResponse::from)
                             .toList();
-                    return ScheduleResponse.of(schedule, items);
+                    ScheduleAiStatusResponse aiStatus = scheduleAiStatusRepository.findByScheduleId(schedule.getId())
+                            .map(ScheduleAiStatusResponse::from)
+                            .orElse(null);
+                    return ScheduleResponse.of(schedule, items, aiStatus);
                 })
                 .toList();
     }
