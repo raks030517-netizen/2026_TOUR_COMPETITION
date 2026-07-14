@@ -1,11 +1,13 @@
 package com.roamate.backend.domain.place;
 
 import com.roamate.backend.common.ApiResponse;
+import com.roamate.backend.domain.place.dto.PlaceConditionResponse;
 import com.roamate.backend.domain.place.dto.PlaceCreateRequest;
 import com.roamate.backend.domain.place.dto.PlaceResponse;
 import jakarta.validation.Valid;
 import java.util.List;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,5 +31,10 @@ public class PlaceController {
     @GetMapping
     public ApiResponse<List<PlaceResponse>> getAll() {
         return ApiResponse.ok(placeService.getAll());
+    }
+
+    @GetMapping("/{placeId}/condition")
+    public ApiResponse<PlaceConditionResponse> getCondition(@PathVariable Long placeId) {
+        return ApiResponse.ok(placeService.getCondition(placeId));
     }
 }

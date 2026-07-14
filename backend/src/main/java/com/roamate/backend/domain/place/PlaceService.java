@@ -1,5 +1,9 @@
 package com.roamate.backend.domain.place;
 
+import com.roamate.backend.common.ApiException;
+import com.roamate.backend.common.ErrorCode;
+import com.roamate.backend.domain.place.condition.PlaceConditionProvider;
+import com.roamate.backend.domain.place.dto.PlaceConditionResponse;
 import com.roamate.backend.domain.place.dto.PlaceCreateRequest;
 import com.roamate.backend.domain.place.dto.PlaceResponse;
 import java.util.List;
@@ -15,9 +19,11 @@ import org.springframework.transaction.annotation.Transactional;
 public class PlaceService {
 
     private final PlaceRepository placeRepository;
+    private final PlaceConditionProvider placeConditionProvider;
 
-    public PlaceService(PlaceRepository placeRepository) {
+    public PlaceService(PlaceRepository placeRepository, PlaceConditionProvider placeConditionProvider) {
         this.placeRepository = placeRepository;
+        this.placeConditionProvider = placeConditionProvider;
     }
 
     @Transactional
@@ -40,5 +46,11 @@ public class PlaceService {
         return placeRepository.findAll().stream()
                 .map(PlaceResponse::from)
                 .toList();
+    }
+
+    public PlaceConditionResponse getCondition(Long placeId) {
+        Place place = placeRepository.findById(placeId)
+                .orElseThrow(() -> new ApiException(ErrorCode.ENTITY_NOT_FOUND, "장소를 찾을 수 없습니다."));
+        return PlaceConditionResponse.from(placeConditionProvider.getCondition(place));
     }
 }
