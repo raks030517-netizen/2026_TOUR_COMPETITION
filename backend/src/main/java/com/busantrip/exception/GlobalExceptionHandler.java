@@ -1,11 +1,14 @@
 package com.busantrip.exception;
 
 import java.util.Map;
+
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+@Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -18,7 +21,9 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public Map<String, String> handleUnexpectedException() {
+    public Map<String, String> handleUnexpectedException(Exception e) {
+        log.error("요청 처리 중 예기치 않은 오류가 발생했습니다.", e);
+
         return Map.of("message", "요청 처리 중 오류가 발생했습니다.");
     }
 }
