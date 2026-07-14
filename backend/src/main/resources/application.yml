@@ -17,3 +17,5 @@ app:
   jwt:
     secret: ${JWT_SECRET:roamate-local-dev-jwt-secret-key-change-before-deploy-0123456789}
     expiration-seconds: ${JWT_EXPIRATION_SECONDS:43200}
+  security:
+    internal-api-key: ${INTERNAL_API_KEY:roamate-local-dev-internal-key-change-before-deploy}
