@@ -11,8 +11,8 @@ import java.util.*;
 
 @Service
 public class RouteOptimizationService {
-    private final WebClient client; private final ObjectMapper mapper; private final String keyId,keySecret;
-    public RouteOptimizationService(WebClient.Builder b,ObjectMapper mapper,@Value("${external-api.naver-directions.base-url:https://maps.apigw.ntruss.com}") String base,@Value("${external-api.naver-directions.key-id:}") String keyId,@Value("${external-api.naver-directions.key-secret:}") String keySecret){this.client=b.baseUrl(base.trim()).build();this.mapper=mapper;this.keyId=keyId.trim();this.keySecret=keySecret.trim();}
+    private final WebClient client; private final ObjectMapper mapper=new ObjectMapper(); private final String keyId,keySecret;
+    public RouteOptimizationService(WebClient.Builder b,@Value("${external-api.naver-directions.base-url:https://maps.apigw.ntruss.com}") String base,@Value("${external-api.naver-directions.key-id:}") String keyId,@Value("${external-api.naver-directions.key-secret:}") String keySecret){this.client=b.baseUrl(base.trim()).build();this.keyId=keyId.trim();this.keySecret=keySecret.trim();}
     public Mono<RouteResponse> optimize(RouteRequest request){if(request==null||request.start()==null||request.places()==null||request.places().isEmpty())return Mono.error(new IllegalArgumentException("출발지와 장소가 필요합니다."));List<Place> ordered=twoOpt(nearest(request.start(),request.places()),request.start());if(keyId.isBlank()||keySecret.isBlank())return Mono.just(fallback(request.start(),ordered,request.option()));return callAll(request.start(),ordered,request.option()).onErrorReturn(fallback(request.start(),ordered,request.option()));}
 
     private Mono<RouteResponse> callAll(Coordinate start,List<Place> ordered,String option){

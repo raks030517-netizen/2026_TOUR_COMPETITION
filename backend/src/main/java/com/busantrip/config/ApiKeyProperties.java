@@ -11,9 +11,10 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public class ApiKeyProperties {
 
     private Naver naver = new Naver();
-    private Gemini gemini = new Gemini();
+    private Gemma gemma = new Gemma();
     private Weather weather = new Weather();
     private Tourism tourism = new Tourism();
+    private Avi avi = new Avi();
 
     @Getter
     @Setter
@@ -30,9 +31,10 @@ public class ApiKeyProperties {
 
     @Getter
     @Setter
-    public static class Gemini {
+    public static class Gemma {
         private String apiKey = "";
-        private String model = "gemini-2.0-flash";
+        private String model = "";
+        private String baseUrl = "https://generativelanguage.googleapis.com/v1beta";
     }
 
     @Getter
@@ -40,6 +42,16 @@ public class ApiKeyProperties {
     public static class Weather {
         private String serviceKey = "";
         private String baseUrl = "";
+    }
+
+    /**
+     * 부산시 교통량(AVI) 공공데이터포털 API
+     */
+    @Getter
+    @Setter
+    public static class Avi {
+        private String serviceKey = "";
+        private String baseUrl = "https://apis.data.go.kr/6260000/BusanITSAVI";
     }
 
     /**

@@ -1,76 +1,31 @@
 package com.busantrip.controller;
 
-import com.busantrip.dto.response.TourismResponse;
-import com.busantrip.service.TourismService;
+import com.busantrip.dto.response.NaverPlaceResponse;
+import com.busantrip.service.NaverLocalSearchService;
+import jakarta.validation.constraints.NotBlank;
+import java.util.List;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 
+@Validated
 @RestController
 @RequestMapping("/api/places")
 public class PlaceController {
 
-    private final TourismService tourismService;
+    private final NaverLocalSearchService placeSearchService;
 
-    public PlaceController(TourismService tourismService) {
-        this.tourismService = tourismService;
+    public PlaceController(NaverLocalSearchService placeSearchService) {
+        this.placeSearchService = placeSearchService;
     }
 
-    /**
-     * 부산 기초지자체 중심 관광지 조회
-     */
-    @GetMapping("/local")
-    public Mono<TourismResponse> getLocalTourism(
-            @RequestParam String baseYm,
-            @RequestParam String signguCd,
-            @RequestParam(defaultValue = "1") int pageNo,
-            @RequestParam(defaultValue = "10") int numOfRows
+    @GetMapping("/search")
+    public Mono<List<NaverPlaceResponse>> search(
+            @RequestParam @NotBlank(message = "검색어를 입력해 주세요.") String query
     ) {
-        return tourismService.getLocalTourism(
-                baseYm,
-                signguCd,
-                pageNo,
-                numOfRows
-        );
-    }
-
-    /**
-     * 특정 지역의 연관 관광지 조회
-     */
-    @GetMapping("/related")
-    public Mono<TourismResponse> getRelatedTourismByArea(
-            @RequestParam String baseYm,
-            @RequestParam String signguCd,
-            @RequestParam(defaultValue = "1") int pageNo,
-            @RequestParam(defaultValue = "10") int numOfRows
-    ) {
-        return tourismService.getRelatedTourismByArea(
-                baseYm,
-                signguCd,
-                pageNo,
-                numOfRows
-        );
-    }
-
-    /**
-     * 관광지 이름으로 연관 관광지 검색
-     */
-    @GetMapping("/related/search")
-    public Mono<TourismResponse> searchRelatedTourism(
-            @RequestParam String baseYm,
-            @RequestParam String signguCd,
-            @RequestParam String keyword,
-            @RequestParam(defaultValue = "1") int pageNo,
-            @RequestParam(defaultValue = "10") int numOfRows
-    ) {
-        return tourismService.searchRelatedTourism(
-                baseYm,
-                signguCd,
-                keyword,
-                pageNo,
-                numOfRows
-        );
+        return placeSearchService.search(query);
     }
 }

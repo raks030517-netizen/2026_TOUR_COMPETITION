@@ -13,9 +13,9 @@ external-api:
     search:
       client-id: ${NAVER_SEARCH_CLIENT_ID:}
       client-secret: ${NAVER_SEARCH_CLIENT_SECRET:}
-  gemini:
-    api-key: ${GEMINI_API_KEY:}
-    model: ${GEMINI_MODEL:gemini-2.0-flash}
+  gemma:
+    api-key: ${GEMMA_API_KEY:}
+    model: ${GEMMA_MODEL:gemma-4-31b-it}
 
   # 한국관광공사 OpenAPI
   tourism:
@@ -29,6 +29,10 @@ external-api:
   weather:
     service-key: ${DATA_GO_KR_API_KEY:}
     base-url: https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0
+
+  # 부산시 교통량(AVI) 공공데이터포털 API — data.go.kr 계정 키 공용, 단 AVI 엔드포인트 별도 활용신청 필요할 수 있음
+  avi:
+    service-key: ${DATA_GO_KR_API_KEY:}
 
 app:
   cors:
