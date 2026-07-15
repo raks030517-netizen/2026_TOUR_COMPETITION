@@ -1,18 +1,28 @@
 package com.busantrip.config;
 
-import org.springframework.boot.webclient.WebClientCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.codec.json.JacksonJsonDecoder;
 import org.springframework.http.codec.json.JacksonJsonEncoder;
+import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.json.JsonMapper;
 
+/**
+ * 외부 API JSON 변환 설정.
+ *
+ * 한국관광공사 API는 검색 결과가 없을 때
+ * items 객체 대신 빈 문자열("")을 반환할 수 있다.
+ *
+ * 예:
+ * "items": ""
+ */
 @Configuration
 public class JacksonConfig {
 
     /**
-     * 외부 API가 객체 대신 빈 문자열("")을 반환하면 null로 변환한다.
+     * 빈 문자열을 복합 객체의 null 값으로 처리하는
+     * Jackson 3용 JsonMapper.
      */
     @Bean
     public JsonMapper jsonMapper() {
@@ -25,14 +35,14 @@ public class JacksonConfig {
     }
 
     /**
-     * JsonMapper 설정을 모든 WebClient.Builder에 적용한다.
+     * 위 JsonMapper를 사용하는 WebClient 변환 전략.
      */
     @Bean
-    public WebClientCustomizer jacksonWebClientCustomizer(
+    public ExchangeStrategies exchangeStrategies(
             JsonMapper jsonMapper
     ) {
-        return webClientBuilder -> webClientBuilder.codecs(
-                codecConfigurer -> {
+        return ExchangeStrategies.builder()
+                .codecs(codecConfigurer -> {
                     codecConfigurer
                             .defaultCodecs()
                             .jacksonJsonDecoder(
@@ -44,7 +54,7 @@ public class JacksonConfig {
                             .jacksonJsonEncoder(
                                     new JacksonJsonEncoder(jsonMapper)
                             );
-                }
-        );
+                })
+                .build();
     }
 }
