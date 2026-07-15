@@ -11,7 +11,7 @@ import org.springframework.test.web.reactive.server.WebTestClient;
         properties = {
                 "external-api.naver.search.client-id=test-naver-id",
                 "external-api.naver.search.client-secret=test-naver-secret",
-                "external-api.gemini.api-key=test-gemini-key",
+                "external-api.gemma.api-key=test-gemma-key",
                 "external-api.weather.service-key=test-weather-key"
         }
 )
@@ -53,12 +53,12 @@ class BusanTripApplicationTests {
                 .json("""
                         {
                           "naverSearchConfigured": true,
-                          "geminiConfigured": true,
+                          "gemmaConfigured": true,
                           "weatherConfigured": true
                         }
                         """)
                 .jsonPath("$.naverSearchConfigured").isBoolean()
-                .jsonPath("$.geminiConfigured").isBoolean()
+                .jsonPath("$.gemmaConfigured").isBoolean()
                 .jsonPath("$.weatherConfigured").isBoolean()
                 .jsonPath("$.clientId").doesNotExist()
                 .jsonPath("$.clientSecret").doesNotExist()
