@@ -1,7 +1,5 @@
 package com.busantrip.controller;
 
-import com.busantrip.dto.external.tourism.RelatedTourismApiResponse;
-import com.busantrip.dto.response.RelatedTourismResponse;
 import com.busantrip.dto.response.TourismResponse;
 import com.busantrip.service.TourismService;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,12 +9,12 @@ import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 
 @RestController
-@RequestMapping("/api/tourism")
-public class TourismController {
+@RequestMapping("/api/places")
+public class PlaceController {
 
     private final TourismService tourismService;
 
-    public TourismController(TourismService tourismService) {
+    public PlaceController(TourismService tourismService) {
         this.tourismService = tourismService;
     }
 
