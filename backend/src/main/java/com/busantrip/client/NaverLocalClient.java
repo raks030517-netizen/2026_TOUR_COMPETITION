@@ -76,20 +76,42 @@ public class NaverLocalClient {
     }
 
     private static PlaceResponse toPlaceResponse(LocalSearchItem item) {
-        String address = item.roadAddress() != null && !item.roadAddress().isBlank()
-                ? item.roadAddress()
-                : item.address();
+        // 네이버는 순위 정보를 내려주지 않는다 — 다른 팀원 코드(TourismService)처럼 없는 값은 null로 정직하게 둔다.
+        String[] categoryParts = splitCategory(item.category());
 
         return new PlaceResponse(
                 stripHtmlTags(item.title()),
-                address,
+                extractDistrict(item.address()),
+                categoryParts[0],
+                categoryParts[1],
                 parseCoordinate(item.mapy()),
-                parseCoordinate(item.mapx())
+                parseCoordinate(item.mapx()),
+                null
         );
     }
 
     private static String stripHtmlTags(String value) {
         return value == null ? "" : value.replaceAll("<[^>]*>", "");
+    }
+
+    // 네이버 주소는 "시도 시군구 ..." 순서로 내려온다 (예: "부산광역시 해운대구 우동 1408").
+    private static String extractDistrict(String address) {
+        if (address == null || address.isBlank()) {
+            return null;
+        }
+        String[] tokens = address.trim().split("\\s+");
+        return tokens.length > 1 ? tokens[1] : null;
+    }
+
+    // 네이버 category는 "대분류>중분류" 형식으로 내려온다 (예: "음식점>카페,디저트").
+    private static String[] splitCategory(String category) {
+        if (category == null || category.isBlank()) {
+            return new String[] {null, null};
+        }
+        String[] parts = category.split(">", 2);
+        String large = parts[0].isBlank() ? null : parts[0];
+        String mid = parts.length > 1 && !parts[1].isBlank() ? parts[1] : null;
+        return new String[] {large, mid};
     }
 
     private static Double parseCoordinate(String rawValue) {
@@ -104,6 +126,7 @@ public class NaverLocalClient {
 
     private record LocalSearchItem(
             String title,
+            String category,
             String address,
             String roadAddress,
             String mapx,

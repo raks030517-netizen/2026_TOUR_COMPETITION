@@ -27,7 +27,8 @@ class ChatControllerTest {
 
     @Test
     void 정상_메시지는_200과_함께_TravelChatService의_응답을_그대로_돌려준다() {
-        List<PlaceResponse> places = List.of(new PlaceResponse("카페", "주소", 35.1, 129.1));
+        List<PlaceResponse> places = List.of(
+                new PlaceResponse("카페", "해운대구", "음식점", "카페,디저트", 35.1, 129.1, null));
         when(travelChatService.chat(any()))
                 .thenReturn(Mono.just(new ChatResponse("이런 곳은 어떠세요? 1곳을 찾았어요.", places)));
 

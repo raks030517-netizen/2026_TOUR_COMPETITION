@@ -22,11 +22,13 @@ import reactor.test.StepVerifier;
 class NaverLocalClientTest {
 
     // 2026-07-15 실제 네이버 지역검색 API 호출로 확인한 응답을 그대로 고정값으로 사용한다.
+    // (category 필드의 "대분류>중분류" 구분자도 같은 날 실호출로 확인)
     private static final String REAL_SAMPLE_RESPONSE = """
             {
               "items": [
                 {
                   "title": "바운스 유니버스 <b>부산</b>",
+                  "category": "여가,오락>테마파크,민속촌",
                   "address": "부산광역시 기장군 기장읍 시랑리 산46",
                   "roadAddress": "부산광역시 기장군 기장읍 동부산관광로 38",
                   "mapx": "1292159178",
@@ -37,16 +39,19 @@ class NaverLocalClientTest {
             """;
 
     @Test
-    void 검색결과의_HTML태그를_제거하고_좌표를_위경도로_변환한다() {
+    void 검색결과의_HTML태그를_제거하고_구정보_카테고리_좌표를_변환한다() {
         NaverLocalClient client = buildClientReturning(HttpStatus.OK, REAL_SAMPLE_RESPONSE);
 
         StepVerifier.create(client.search("부산 카페"))
                 .assertNext(places -> {
                     PlaceResponse place = places.get(0);
                     assertThat(place.name()).isEqualTo("바운스 유니버스 부산");
-                    assertThat(place.address()).isEqualTo("부산광역시 기장군 기장읍 동부산관광로 38");
+                    assertThat(place.district()).isEqualTo("기장군");
+                    assertThat(place.category()).isEqualTo("여가,오락");
+                    assertThat(place.subCategory()).isEqualTo("테마파크,민속촌");
                     assertThat(place.latitude()).isCloseTo(35.1945604, within(1e-6));
                     assertThat(place.longitude()).isCloseTo(129.2159178, within(1e-6));
+                    assertThat(place.rank()).isNull();
                 })
                 .verifyComplete();
     }

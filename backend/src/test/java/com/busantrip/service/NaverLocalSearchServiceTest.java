@@ -20,7 +20,8 @@ class NaverLocalSearchServiceTest {
 
     @Test
     void NaverLocalClient의_결과를_그대로_전달한다() {
-        List<PlaceResponse> expected = List.of(new PlaceResponse("해운대", "부산 해운대구", 35.16, 129.16));
+        List<PlaceResponse> expected = List.of(
+                new PlaceResponse("해운대", "해운대구", "여가,오락", "해수욕장", 35.16, 129.16, null));
         when(naverLocalClient.search("해운대")).thenReturn(Mono.just(expected));
 
         NaverLocalSearchService service = new NaverLocalSearchService(naverLocalClient);

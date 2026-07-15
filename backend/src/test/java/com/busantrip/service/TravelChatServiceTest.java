@@ -25,8 +25,8 @@ class TravelChatServiceTest {
     void 검색결과가_있으면_장소개수를_포함한_안내문구를_돌려준다() {
         when(llmQueryService.analyze("부산 조용한 카페 추천해줘")).thenReturn(Mono.just("부산 조용한 카페"));
         List<PlaceResponse> places = List.of(
-                new PlaceResponse("카페1", "주소1", 35.1, 129.1),
-                new PlaceResponse("카페2", "주소2", 35.2, 129.2)
+                new PlaceResponse("카페1", "해운대구", "음식점", "카페,디저트", 35.1, 129.1, null),
+                new PlaceResponse("카페2", "수영구", "음식점", "카페,디저트", 35.2, 129.2, null)
         );
         when(naverLocalSearchService.search("부산 조용한 카페")).thenReturn(Mono.just(places));
 
