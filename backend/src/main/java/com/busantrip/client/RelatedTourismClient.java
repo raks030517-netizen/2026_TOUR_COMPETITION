@@ -1,7 +1,7 @@
 package com.busantrip.client;
 
 import com.busantrip.config.ApiKeyProperties;
-import lombok.extern.slf4j.Slf4j;
+import com.busantrip.dto.external.tourism.RelatedTourismApiResponse;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriBuilder;
@@ -42,7 +42,7 @@ public class RelatedTourismClient {
     }
 
 
-    public Mono<String> getRelatedTourismByArea(
+    public Mono<RelatedTourismApiResponse> getRelatedTourismByArea(
             String baseYm,
             String signguCd,
             int pageNo,
@@ -68,7 +68,7 @@ public class RelatedTourismClient {
      * @param pageNo    페이지 번호
      * @param numOfRows 한 페이지 결과 수
      */
-    public Mono<String> searchRelatedTourism(
+    public Mono<RelatedTourismApiResponse> searchRelatedTourism(
             String baseYm,
             String signguCd,
             String keyword,
@@ -91,7 +91,7 @@ public class RelatedTourismClient {
          );
     }
 
-    private Mono<String> request(
+    private Mono<RelatedTourismApiResponse> request(
             String path,
             String baseYm,
             String signguCd,
@@ -136,7 +136,7 @@ public class RelatedTourismClient {
                                         )
                                 ))
                 )
-                .bodyToMono(String.class);
+                .bodyToMono(RelatedTourismApiResponse.class);
     }
 
 

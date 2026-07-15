@@ -1,5 +1,7 @@
 package com.busantrip.controller;
 
+import com.busantrip.dto.external.weather.WeatherApiResponse;
+import com.busantrip.dto.response.WeatherResponse;
 import com.busantrip.service.WeatherService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,7 +30,7 @@ public class WeatherController {
      *     &ny=76
      */
     @GetMapping("/forecast")
-    public Mono<String> getForecast(
+    public Mono<WeatherResponse> getForecast(
             @RequestParam String baseDate,
             @RequestParam String baseTime,
             @RequestParam int nx,
