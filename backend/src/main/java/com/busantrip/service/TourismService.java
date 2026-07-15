@@ -75,8 +75,13 @@ public class TourismService {
             LocalTourismApiResponse.Body body =
                     apiResponse.response().body();
 
-            List<PlaceResponse> places = body.items()
-                    .item()
+            // 공공데이터포털 API는 결과 0건일 때 items 자체가 없는 경우가 있다(빈 문자열 -> null로 역직렬화됨).
+            List<LocalTourismApiResponse.Item> items =
+                    body.items() == null || body.items().item() == null
+                            ? List.of()
+                            : body.items().item();
+
+            List<PlaceResponse> places = items
                     .stream()
                     .map(item -> new PlaceResponse(
                             item.hubTatsNm(),
@@ -148,8 +153,13 @@ public class TourismService {
         RelatedTourismApiResponse.Body body =
                 apiResponse.response().body();
 
-        List<PlaceResponse> places = body.items()
-                .item()
+        // 공공데이터포털 API는 결과 0건일 때 items 자체가 없는 경우가 있다(빈 문자열 -> null로 역직렬화됨).
+        List<RelatedTourismApiResponse.Item> items =
+                body.items() == null || body.items().item() == null
+                        ? List.of()
+                        : body.items().item();
+
+        List<PlaceResponse> places = items
                 .stream()
                 .map(item -> new PlaceResponse(
 

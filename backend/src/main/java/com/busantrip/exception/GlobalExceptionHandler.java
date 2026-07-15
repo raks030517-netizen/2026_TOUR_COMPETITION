@@ -2,6 +2,8 @@ package com.busantrip.exception;
 
 import jakarta.validation.ConstraintViolationException;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.support.WebExchangeBindException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -12,6 +14,8 @@ import org.springframework.web.server.ServerWebInputException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     @ExceptionHandler(NonBusanRequestException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -93,7 +97,9 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public Map<String, String> handleUnexpectedException() {
+    public Map<String, String> handleUnexpectedException(Exception exception) {
+        // 응답엔 고정 문구만 내려주되, 서버 로그엔 원인을 남겨 디버깅 가능하게 한다.
+        log.error("처리되지 않은 예외 발생", exception);
         return Map.of("message", "요청 처리 중 오류가 발생했습니다.");
     }
 }
