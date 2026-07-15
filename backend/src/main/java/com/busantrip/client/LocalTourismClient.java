@@ -2,6 +2,7 @@ package com.busantrip.client;
 
 
 import com.busantrip.config.ApiKeyProperties;
+import com.busantrip.dto.external.tourism.LocalTourismApiResponse;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
@@ -43,7 +44,7 @@ public class LocalTourismClient {
      * @param numOfRows 한 페이지 결과 수
      * @return 한국관광공사 API의 JSON 응답
      */
-    public Mono<String> getLocalTourism(
+    public Mono<LocalTourismApiResponse> getLocalTourism(
             String baseYm,
             String signguCd,
             int pageNo,
@@ -75,6 +76,6 @@ public class LocalTourismClient {
                                         )
                                 ))
                 )
-                .bodyToMono(String.class);
+                .bodyToMono(LocalTourismApiResponse.class);
     }
 }

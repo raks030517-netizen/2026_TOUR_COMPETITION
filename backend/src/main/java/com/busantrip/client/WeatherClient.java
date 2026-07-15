@@ -1,6 +1,7 @@
 package com.busantrip.client;
 
 import com.busantrip.config.ApiKeyProperties;
+import com.busantrip.dto.external.weather.WeatherApiResponse;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
@@ -40,7 +41,7 @@ public class WeatherClient {
      * @param numOfRows 한 페이지 결과 수
      * @return 기상청 API의 JSON 응답
      */
-    public Mono<String> getForecast(
+    public Mono<WeatherApiResponse> getForecast(
             String baseDate,
             String baseTime,
             int nx,
@@ -87,7 +88,7 @@ public class WeatherClient {
                                         )
                                 ))
                 )
-                .bodyToMono(String.class);
+                .bodyToMono(WeatherApiResponse.class);
     }
 
     private void validateRequest(
