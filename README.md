@@ -246,5 +246,7 @@ LIVE MATE는
 
 <img width="853" height="1844" alt="app" src="https://github.com/user-attachments/assets/f1e3694d-6e62-44c7-aed8-f9544e9b3992" />
 <img width="1536" height="1024" alt="ChatGPT Image Jul 13, 2026, 05_06_35 PM" src="https://github.com/user-attachments/assets/6d30b995-e67a-47f0-8e60-14a52533ab6f" />
+<img width="1024" height="1536" alt="file_00000000f84c7207b4c724a861b30324" src="https://github.com/user-attachments/assets/4433c44c-b106-4cad-9b02-659344d2db9c" />
+
 
 
