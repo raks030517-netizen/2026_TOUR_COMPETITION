@@ -1,5 +1,8 @@
 package com.busantrip.controller;
 
+import com.busantrip.dto.external.tourism.RelatedTourismApiResponse;
+import com.busantrip.dto.response.RelatedTourismResponse;
+import com.busantrip.dto.response.TourismResponse;
 import com.busantrip.service.TourismService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,7 +24,7 @@ public class TourismController {
      * 부산 기초지자체 중심 관광지 조회
      */
     @GetMapping("/local")
-    public Mono<String> getLocalTourism(
+    public Mono<TourismResponse> getLocalTourism(
             @RequestParam String baseYm,
             @RequestParam String signguCd,
             @RequestParam(defaultValue = "1") int pageNo,
@@ -39,7 +42,7 @@ public class TourismController {
      * 특정 지역의 연관 관광지 조회
      */
     @GetMapping("/related")
-    public Mono<String> getRelatedTourismByArea(
+    public Mono<TourismResponse> getRelatedTourismByArea(
             @RequestParam String baseYm,
             @RequestParam String signguCd,
             @RequestParam(defaultValue = "1") int pageNo,
@@ -57,7 +60,7 @@ public class TourismController {
      * 관광지 이름으로 연관 관광지 검색
      */
     @GetMapping("/related/search")
-    public Mono<String> searchRelatedTourism(
+    public Mono<TourismResponse> searchRelatedTourism(
             @RequestParam String baseYm,
             @RequestParam String signguCd,
             @RequestParam String keyword,
