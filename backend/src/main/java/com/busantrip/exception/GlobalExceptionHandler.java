@@ -2,6 +2,8 @@ package com.busantrip.exception;
 
 import jakarta.validation.ConstraintViolationException;
 import java.util.Map;
+
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.support.WebExchangeBindException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -10,6 +12,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.HandlerMethodValidationException;
 import org.springframework.web.server.ServerWebInputException;
 
+@Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -93,7 +96,10 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public Map<String, String> handleUnexpectedException() {
+    public Map<String, String> handleUnexpectedException(Exception e) {
+
+        log.error("예상하지 못한 요청 처리 오류가 발생했습니다.", e);
+
         return Map.of("message", "요청 처리 중 오류가 발생했습니다.");
     }
 }

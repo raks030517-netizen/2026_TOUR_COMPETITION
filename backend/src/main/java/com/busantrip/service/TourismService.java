@@ -144,25 +144,39 @@ public class TourismService {
     private TourismResponse toRelatedTourismResponse(
             RelatedTourismApiResponse apiResponse
     ) {
-
         RelatedTourismApiResponse.Body body =
                 apiResponse.response().body();
+
+        if (body == null) {
+            throw new IllegalStateException(
+                    "연관 관광지 API 응답 body가 없습니다."
+            );
+        }
+
+        // 검색 결과가 없는 경우 빈 목록 반환
+        if (body.items() == null
+                || body.items().item() == null
+                || body.items().item().isEmpty()) {
+
+            return new TourismResponse(
+                    body.totalCount() != null ? body.totalCount() : 0,
+                    body.pageNo() != null ? body.pageNo() : 1,
+                    body.numOfRows() != null ? body.numOfRows() : 0,
+                    List.of()
+            );
+        }
 
         List<PlaceResponse> places = body.items()
                 .item()
                 .stream()
                 .map(item -> new PlaceResponse(
-
                         item.rlteTatsNm(),
                         item.rlteSignguNm(),
                         item.rlteCtgryLclsNm(),
                         item.rlteCtgryMclsNm(),
-
                         null,
                         null,
-
                         parseInteger(item.rlteRank())
-
                 ))
                 .toList();
 
@@ -172,7 +186,6 @@ public class TourismService {
                 body.numOfRows(),
                 places
         );
-
     }
 
 }
