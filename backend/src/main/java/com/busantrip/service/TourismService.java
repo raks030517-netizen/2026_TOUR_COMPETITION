@@ -149,7 +149,6 @@ public class TourismService {
     private TourismResponse toRelatedTourismResponse(
             RelatedTourismApiResponse apiResponse
     ) {
-
         RelatedTourismApiResponse.Body body =
                 apiResponse.response().body();
 
@@ -162,17 +161,13 @@ public class TourismService {
         List<PlaceResponse> places = items
                 .stream()
                 .map(item -> new PlaceResponse(
-
                         item.rlteTatsNm(),
                         item.rlteSignguNm(),
                         item.rlteCtgryLclsNm(),
                         item.rlteCtgryMclsNm(),
-
                         null,
                         null,
-
                         parseInteger(item.rlteRank())
-
                 ))
                 .toList();
 
@@ -182,7 +177,6 @@ public class TourismService {
                 body.numOfRows(),
                 places
         );
-
     }
 
 }

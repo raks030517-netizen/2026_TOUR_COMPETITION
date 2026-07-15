@@ -3,6 +3,7 @@ package com.busantrip.client;
 import com.busantrip.config.ApiKeyProperties;
 import com.busantrip.dto.external.tourism.RelatedTourismApiResponse;
 import org.springframework.stereotype.Component;
+import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriBuilder;
 import reactor.core.publisher.Mono;
@@ -23,7 +24,8 @@ public class RelatedTourismClient {
 
     public RelatedTourismClient(
             WebClient.Builder webClientBuilder,
-            ApiKeyProperties apiKeyProperties
+            ApiKeyProperties apiKeyProperties,
+            ExchangeStrategies exchangeStrategies
     ) {
         String baseUrl = apiKeyProperties
                 .getTourism()
@@ -38,6 +40,7 @@ public class RelatedTourismClient {
 
         this.webClient = webClientBuilder
                 .baseUrl(baseUrl)
+                .exchangeStrategies(exchangeStrategies)
                 .build();
     }
 
