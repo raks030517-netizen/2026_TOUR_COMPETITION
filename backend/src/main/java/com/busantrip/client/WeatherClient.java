@@ -32,7 +32,6 @@ public class WeatherClient {
 
     /**
      * 기상청 단기예보를 조회한다.
-     *
      * @param baseDate  발표일자(yyyyMMdd)
      * @param baseTime  발표시각(HHmm)
      * @param nx        예보지점 X 좌표
