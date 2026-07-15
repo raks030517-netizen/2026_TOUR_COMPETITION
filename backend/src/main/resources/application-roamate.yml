@@ -1,8 +1,4 @@
 external-api:
-  gemini:
-    base-url: https://generativelanguage.googleapis.com
-    api-key: ${GEMINI_API_KEY:}
-    model: ${GEMINI_MODEL:gemini-2.5-flash}
   naver-directions:
     base-url: https://maps.apigw.ntruss.com
     key-id: ${NAVER_DIRECTIONS_KEY_ID:}

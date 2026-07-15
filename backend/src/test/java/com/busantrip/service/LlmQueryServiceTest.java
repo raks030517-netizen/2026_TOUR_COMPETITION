@@ -1,32 +1,70 @@
 package com.busantrip.service;
 
-import static org.mockito.ArgumentMatchers.contains;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.busantrip.client.GeminiClient;
+import com.busantrip.client.GemmaClient;
+import com.busantrip.dto.llm.SearchCondition;
+import com.busantrip.dto.llm.SearchIntent;
+import com.busantrip.exception.LlmAnalysisFailedException;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Mono;
-import reactor.test.StepVerifier;
+import tools.jackson.databind.ObjectMapper;
 
-@ExtendWith(MockitoExtension.class)
 class LlmQueryServiceTest {
 
-    @Mock
-    private GeminiClient geminiClient;
+    @Test
+    void retriesOnlyOnceWhenFirstResponseCannotBeParsed() {
+        GemmaClient client = mock(GemmaClient.class);
+        when(client.generate(anyString(), anyString()))
+                .thenReturn(Mono.just("JSON이 아닌 응답"))
+                .thenReturn(Mono.just("""
+                        {
+                          "intent":"RESTAURANT_SEARCH",
+                          "area":"부산 광안리",
+                          "restaurantQuery":"부산 광안리 조개구이"
+                        }
+                        """)
+                );
+        LlmQueryService service = new LlmQueryService(
+                client,
+                new SearchConditionParser(new ObjectMapper()),
+                new BusanRequestValidator()
+        );
+
+        SearchCondition result = service.analyze("광안리에서 조개구이를 먹고 싶어요.").block();
+
+        assertThat(result).isEqualTo(new SearchCondition(
+                SearchIntent.RESTAURANT_SEARCH,
+                "부산 광안리",
+                "",
+                "부산 광안리 조개구이",
+                false,
+                false,
+                false
+        ));
+        verify(client, times(2)).generate(anyString(), anyString());
+    }
 
     @Test
-    void 사용자_메시지를_프롬프트에_담아_Gemini를_호출하고_응답의_앞뒤_공백을_정리한다() {
-        String userMessage = "부산에서 조용한 카페 추천해줘";
-        when(geminiClient.generate(contains(userMessage)))
-                .thenReturn(Mono.just("  부산 조용한 카페  \n"));
+    void returnsAnalysisFailureAfterOneCorrectionAlsoFails() {
+        GemmaClient client = mock(GemmaClient.class);
+        when(client.generate(anyString(), anyString()))
+                .thenReturn(Mono.just("첫 번째 잘못된 응답"))
+                .thenReturn(Mono.just("두 번째 잘못된 응답"));
+        LlmQueryService service = new LlmQueryService(
+                client,
+                new SearchConditionParser(new ObjectMapper()),
+                new BusanRequestValidator()
+        );
 
-        LlmQueryService service = new LlmQueryService(geminiClient);
-
-        StepVerifier.create(service.analyze(userMessage))
-                .expectNext("부산 조용한 카페")
-                .verifyComplete();
+        assertThatThrownBy(() -> service.analyze("해운대 관광지를 알려주세요.").block())
+                .isInstanceOf(LlmAnalysisFailedException.class);
+        verify(client, times(2)).generate(anyString(), anyString());
     }
 }

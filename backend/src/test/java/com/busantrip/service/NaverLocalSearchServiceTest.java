@@ -1,33 +1,55 @@
 package com.busantrip.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.busantrip.client.NaverLocalClient;
-import com.busantrip.dto.response.PlaceResponse;
+import com.busantrip.dto.place.NaverLocalApiResponse;
+import com.busantrip.dto.response.NaverPlaceResponse;
 import java.util.List;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Mono;
-import reactor.test.StepVerifier;
 
-@ExtendWith(MockitoExtension.class)
 class NaverLocalSearchServiceTest {
 
-    @Mock
-    private NaverLocalClient naverLocalClient;
+    private final NaverLocalClient client = mock(NaverLocalClient.class);
+    private final NaverLocalSearchService service = new NaverLocalSearchService(client);
 
     @Test
-    void NaverLocalClient의_결과를_그대로_전달한다() {
-        List<PlaceResponse> expected = List.of(
-                new PlaceResponse("해운대", "해운대구", "여가,오락", "해수욕장", 35.16, 129.16, null));
-        when(naverLocalClient.search("해운대")).thenReturn(Mono.just(expected));
+    void removesTitleHtmlAndConvertsWgs84IntegerCoordinates() {
+        NaverLocalApiResponse.Item item = new NaverLocalApiResponse.Item(
+                "<b>해운대</b>&amp;송정",
+                "https://example.com/place",
+                "여행,명소>해수욕장",
+                "부산광역시 해운대구 우동",
+                "부산광역시 해운대구 해운대해변로 264",
+                1_291_603_840L,
+                351_593_251L
+        );
+        when(client.search("부산 해운대 관광지"))
+                .thenReturn(Mono.just(new NaverLocalApiResponse(List.of(item))));
 
-        NaverLocalSearchService service = new NaverLocalSearchService(naverLocalClient);
+        List<NaverPlaceResponse> result = service.search("부산 해운대 관광지").block();
 
-        StepVerifier.create(service.search("해운대"))
-                .expectNext(expected)
-                .verifyComplete();
+        assertThat(result).containsExactly(new NaverPlaceResponse(
+                "해운대&송정",
+                "여행,명소>해수욕장",
+                "부산광역시 해운대구 우동",
+                "부산광역시 해운대구 해운대해변로 264",
+                35.1593251,
+                129.160384,
+                "https://example.com/place"
+        ));
+    }
+
+    @Test
+    void returnsEmptyListWhenNaverHasNoResults() {
+        when(client.search("검색 결과 없음"))
+                .thenReturn(Mono.just(NaverLocalApiResponse.empty()));
+
+        List<NaverPlaceResponse> result = service.search("검색 결과 없음").block();
+
+        assertThat(result).isEmpty();
     }
 }
