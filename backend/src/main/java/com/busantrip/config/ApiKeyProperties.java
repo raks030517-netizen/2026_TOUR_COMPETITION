@@ -32,6 +32,7 @@ public class ApiKeyProperties {
     @Setter
     public static class Gemini {
         private String apiKey = "";
+        private String model = "gemini-2.0-flash";
     }
 
     @Getter
