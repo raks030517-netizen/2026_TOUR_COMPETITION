@@ -1,0 +1,31 @@
+ROAMATE demo dry-run
+Verified: 2026-07-16 Asia/Seoul
+Command: powershell -ExecutionPolicy Bypass -File scripts/demo-dry-run.ps1 -BaseUrl http://localhost:8080
+
+[1/14] health
+[2/14] signup
+[3/14] login with a fresh session
+[4/14] current user
+[5/14] Naver place search
+[6/14] tourism public data
+[7/14] current-location weather
+[8/14] car route
+[9/14] transit routes
+[10/14] walk route
+[11/14] Spring AI mapping 1: search condition
+[12/14] Spring AI mapping 2: travel brief
+[13/14] context-aware AI chat
+[14/14] summary
+
+health=UP
+signup=CREATED
+places=5
+tourism=15
+weather=33.0C / 구름많음
+car=9656m / 2202s
+transit=23 routes
+walk=9301m / 8457s
+springAiSearchCondition=COURSE_SEARCH
+springAiTravelBrief=부산 광안리 바다 여행 및 미식 탐방
+aiChat=현재 위치 기반 해운대 반나절 코스 응답 확인
+status=PASS

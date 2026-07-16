@@ -1,4 +1,4 @@
-import { env } from '../config/env'
+import { apiFetch } from '../authApi'
 import type { TravelSearchResponse } from '../types/travel'
 
 interface ApiErrorResponse {
@@ -9,7 +9,7 @@ export async function searchTravel(
   message: string,
   signal?: AbortSignal,
 ): Promise<TravelSearchResponse> {
-  const response = await fetch(`${env.apiBaseUrl}/api/travel/search`, {
+  const response = await apiFetch('/api/travel/search', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ message }),

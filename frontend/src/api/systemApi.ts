@@ -1,8 +1,8 @@
-import { env } from '../config/env'
+import { apiFetch } from '../authApi'
 import type { ConfigStatus, HealthStatus } from '../types/system'
 
 async function getJson<T>(path: string): Promise<T> {
-  const response = await fetch(`${env.apiBaseUrl}${path}`)
+  const response = await apiFetch(path)
 
   if (!response.ok) {
     throw new Error('시스템 상태를 확인하지 못했습니다.')

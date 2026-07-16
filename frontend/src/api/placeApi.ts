@@ -1,4 +1,4 @@
-import { env } from '../config/env'
+import { apiFetch } from '../authApi'
 import type { Place } from '../types/place'
 
 interface ApiErrorResponse {
@@ -7,7 +7,7 @@ interface ApiErrorResponse {
 
 export async function searchPlaces(query: string, signal?: AbortSignal): Promise<Place[]> {
   const searchParams = new URLSearchParams({ query })
-  const response = await fetch(`${env.apiBaseUrl}/api/places/search?${searchParams}`, { signal })
+  const response = await apiFetch(`/api/places/search?${searchParams}`, { signal })
 
   if (!response.ok) {
     const errorResponse = await readErrorResponse(response)

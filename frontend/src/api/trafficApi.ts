@@ -1,4 +1,4 @@
-import { env } from '../config/env'
+import { apiFetch } from '../authApi'
 import type { AviTrafficStation } from '../types/traffic'
 
 interface ApiErrorResponse {
@@ -6,7 +6,7 @@ interface ApiErrorResponse {
 }
 
 export async function getAviTraffic(signal?: AbortSignal): Promise<AviTrafficStation[]> {
-  const response = await fetch(`${env.apiBaseUrl}/api/traffic/avi`, { signal })
+  const response = await apiFetch('/api/traffic/avi', { signal })
 
   if (!response.ok) {
     const errorResponse = await readErrorResponse(response)

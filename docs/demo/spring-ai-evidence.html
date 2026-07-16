@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>ROAMATE Spring AI 라이브 증빙</title>
+  <style>
+    *{box-sizing:border-box}body{margin:0;padding:40px;background:#070a15;color:#eef2ff;font:17px/1.5 Consolas,'Noto Sans KR',sans-serif}h1{margin:0;color:#67e8f9;font-size:34px}.meta{margin:12px 0 24px;color:#b9c3df}.grid{display:grid;grid-template-columns:1fr 1fr;gap:22px}.card{background:#11172b;border:1px solid #33406b;border-radius:18px;padding:22px}.tag{color:#a78bfa;font-weight:700}h2{margin:8px 0}.endpoint{color:#7dd3fc}pre{white-space:pre-wrap;background:#080b15;border-radius:12px;padding:16px;color:#d9e4ff;font-size:14px;min-height:170px}.ok{color:#4ade80;font-weight:700}.result{border-left:4px solid #4ade80;padding-left:12px}.footer{margin-top:22px;padding:18px 22px;border:1px solid #166534;background:#0b2118;border-radius:14px;color:#bbf7d0}
+  </style>
+</head>
+<body>
+  <h1>ROAMATE · Spring AI 구조화 매핑 2개</h1>
+  <p class="meta"><span class="ok">LIVE 200 VERIFIED</span> · 2026-07-16 · Spring AI 2.0.0 · Google GenAI · Java 21</p>
+  <div class="grid">
+    <section class="card">
+      <div class="tag">기능 1</div><h2>검색 조건 매핑</h2>
+      <p class="endpoint">POST /api/ai/search-condition</p>
+      <pre>.prompt()
+.system("부산 관광 검색 요청을 구조화")
+.user(message)
+.call()
+.entity(SearchCondition.class,
+  spec -&gt; spec.useProviderStructuredOutput())</pre>
+      <p class="result"><span class="ok">HTTP 200</span><br>intent: COURSE_SEARCH<br>area: 부산 광안리<br>관광·맛집 검색어와 교통 필요 여부 매핑 성공</p>
+    </section>
+    <section class="card">
+      <div class="tag">기능 2</div><h2>여행 브리프 매핑</h2>
+      <p class="endpoint">POST /api/ai/travel-brief</p>
+      <pre>.prompt()
+.system("부산 여행 요청을 짧은 브리프로 구조화")
+.user(message)
+.call()
+.entity(AiTravelBrief.class,
+  spec -&gt; spec.useProviderStructuredOutput())</pre>
+      <p class="result"><span class="ok">HTTP 200</span><br>title: 부산 광안리 바다 여행 및 미식 탐방<br>summary · recommendedArea · activities · cautions 매핑 성공</p>
+    </section>
+  </div>
+  <div class="footer"><strong>DEMO DRY-RUN PASS</strong> · 인증, 장소 5건, 관광 15건, 날씨, 자동차, 대중교통 23개, 도보, Spring AI 2개, AI 채팅까지 14단계 성공</div>
+</body>
+</html>

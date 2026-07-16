@@ -1,17 +1,30 @@
 package com.busantrip.exception;
 
+import com.busantrip.auth.AuthException;
 import jakarta.validation.ConstraintViolationException;
 import java.util.Map;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.support.WebExchangeBindException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.HandlerMethodValidationException;
 import org.springframework.web.server.ServerWebInputException;
+import org.springframework.web.reactive.resource.NoResourceFoundException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+
+    @ExceptionHandler(AuthException.class)
+    public ResponseEntity<Map<String, String>> handleAuthException(AuthException exception) {
+        return ResponseEntity.status(exception.getStatus())
+                .body(Map.of("code", exception.getCode(), "message", exception.getMessage()));
+    }
 
     @ExceptionHandler(NonBusanRequestException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -33,8 +46,15 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(GemmaApiException.class)
     @ResponseStatus(HttpStatus.BAD_GATEWAY)
-    public Map<String, String> handleGemmaApiException() {
-        return Map.of("message", "Gemma API 호출 중 오류가 발생했습니다.");
+    public Map<String, String> handleGemmaApiException(GemmaApiException exception) {
+        log.warn("Gemma API request failed: {}", exception.getMessage());
+        String detail = exception.getMessage() == null ? "" : exception.getMessage();
+        String code = detail.contains("초과") ? "GEMMA_TIMEOUT"
+                : detail.contains("연결") ? "GEMMA_UNAVAILABLE"
+                : detail.matches(".*status=\\d{3}.*")
+                        ? "GEMMA_UPSTREAM_" + detail.replaceFirst(".*status=(\\d{3}).*", "$1")
+                        : "GEMMA_RESPONSE_ERROR";
+        return Map.of("code", code, "message", "Gemma API 호출 중 오류가 발생했습니다.");
     }
 
     @ExceptionHandler(LlmAnalysisFailedException.class)
@@ -84,6 +104,24 @@ public class GlobalExceptionHandler {
         return Map.of("message", "AVI 교통량 정보를 불러오지 못했습니다.");
     }
 
+    @ExceptionHandler(RouteApiException.class)
+    public ResponseEntity<Map<String, String>> handleRouteApiException(RouteApiException exception) {
+        return ResponseEntity.status(exception.getStatus())
+                .body(Map.of("code", exception.getCode(), "message", exception.getMessage()));
+    }
+
+    @ExceptionHandler(NoResourceFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public Map<String, String> handleNoResourceFoundException() {
+        return Map.of("code", "API_NOT_FOUND", "message", "요청한 API를 찾을 수 없습니다.");
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public Map<String, String> handleIllegalArgumentException(IllegalArgumentException exception) {
+        return Map.of("message", exception.getMessage());
+    }
+
     @ExceptionHandler(UnsupportedOperationException.class)
     @ResponseStatus(HttpStatus.NOT_IMPLEMENTED)
     public Map<String, String> handleNotImplemented() {
@@ -93,7 +131,8 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public Map<String, String> handleUnexpectedException() {
+    public Map<String, String> handleUnexpectedException(Exception exception) {
+        log.error("Unhandled request error", exception);
         return Map.of("message", "요청 처리 중 오류가 발생했습니다.");
     }
 }

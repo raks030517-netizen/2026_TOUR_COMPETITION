@@ -27,7 +27,7 @@ public class SystemController {
         ApiKeyProperties.Naver.Search search = apiKeyProperties.getNaver().getSearch();
         return new ConfigStatusResponse(
                 isConfigured(search.getClientId()) && isConfigured(search.getClientSecret()),
-                isConfigured(apiKeyProperties.getGemini().getApiKey()),
+                isConfigured(apiKeyProperties.getGemma().getApiKey()),
                 isConfigured(apiKeyProperties.getWeather().getServiceKey())
         );
     }

@@ -5,8 +5,39 @@ spring:
   config:
     import: "optional:file:.env[.properties]"
 
+  r2dbc:
+    url: r2dbc:h2:file:///./data/busantrip;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;DATABASE_TO_LOWER=TRUE
+    username: sa
+    password:
+
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:schema.sql
+
+  ai:
+    model:
+      chat: ${SPRING_AI_CHAT_MODEL:google-genai}
+    google:
+      genai:
+        api-key: ${GEMMA_API_KEY:}
+        chat:
+          model: ${GEMMA_FALLBACK_MODEL:gemini-3.5-flash}
+          temperature: 0.2
+          response-mime-type: application/json
+
 server:
   port: 8080
+  address: 0.0.0.0
+  reactive:
+    session:
+      timeout: 7d
+      cookie:
+        name: BUSANTRIP_SESSION
+        http-only: true
+        same-site: lax
+        secure: ${SESSION_COOKIE_SECURE:false}
+        max-age: 7d
 
 external-api:
   naver:
@@ -15,10 +46,38 @@ external-api:
       client-secret: ${NAVER_SEARCH_CLIENT_SECRET:}
   gemini:
     api-key: ${GEMINI_API_KEY:}
+  gemma:
+    api-key: ${GEMMA_API_KEY:}
+    model: ${GEMMA_MODEL:gemma-4-31b-it}
+    fallback-model: ${GEMMA_FALLBACK_MODEL:gemini-3.5-flash}
+    base-url: ${GEMMA_BASE_URL:https://generativelanguage.googleapis.com/v1beta}
   weather:
-    service-key: ${KMA_SERVICE_KEY:}
+    service-key: ${DATA_GO_KR_API_KEY:${KMA_SERVICE_KEY:}}
+    base-url: https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0
+  tourism:
+    service-key: ${DATA_GO_KR_API_KEY:}
+    local:
+      base-url: https://apis.data.go.kr/B551011/LocgoHubTarService1
+    related:
+      base-url: https://apis.data.go.kr/B551011/TarRlteTarService1
+  avi:
+    service-key: ${DATA_GO_KR_API_KEY:}
+    base-url: https://apis.data.go.kr/6260000/BusanITSAVI
+
+naver:
+  maps:
+    key-id: ${NAVER_MAPS_KEY_ID:}
+    key: ${NAVER_MAPS_KEY:}
+    base-url: https://maps.apigw.ntruss.com/map-direction/v1
+
+odsay:
+  api:
+    key: ${ODSAY_API_KEY:}
+    base-url: https://api.odsay.com/v1/api
 
 app:
   cors:
     allowed-origins:
-      - ${FRONTEND_URL:http://localhost:5173}
+      - http://localhost:5173
+      - http://127.0.0.1:5173
+      - ${FRONTEND_URL:http://192.168.40.1:5173}

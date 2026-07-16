@@ -7,6 +7,10 @@ plugins {
 group = 'com.busantrip'
 version = '0.0.1-SNAPSHOT'
 
+if (providers.gradleProperty('isolatedBuildDir').isPresent()) {
+	layout.buildDirectory = file(providers.gradleProperty('isolatedBuildDir').get())
+}
+
 java {
 	toolchain {
 		languageVersion = JavaLanguageVersion.of(21)
@@ -17,9 +21,19 @@ repositories {
 	mavenCentral()
 }
 
+dependencyManagement {
+	imports {
+		mavenBom 'org.springframework.ai:spring-ai-bom:2.0.0'
+	}
+}
+
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 	implementation 'org.springframework.boot:spring-boot-starter-webflux'
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation 'org.springframework.boot:spring-boot-starter-data-r2dbc'
+	implementation 'org.springframework.ai:spring-ai-starter-model-google-genai'
+	runtimeOnly 'io.r2dbc:r2dbc-h2'
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
 	testImplementation 'org.springframework.boot:spring-boot-starter-validation-test'
@@ -31,4 +45,5 @@ dependencies {
 
 tasks.named('test') {
 	useJUnitPlatform()
+	systemProperty 'spring.r2dbc.url', 'r2dbc:h2:mem:///busantrip-test;DB_CLOSE_DELAY=-1;DATABASE_TO_LOWER=TRUE'
 }

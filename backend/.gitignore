@@ -28,6 +28,7 @@ out/
 .env
 .env.*
 .env.example
+!.env.example
 application-secret.yml
 application-local.yml
 *.pem

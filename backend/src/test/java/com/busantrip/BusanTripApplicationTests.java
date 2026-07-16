@@ -46,26 +46,13 @@ class BusanTripApplicationTests {
     }
 
     @Test
-    void configStatusReturnsOnlyConfiguredFlags() {
+    void configStatusRequiresAuthentication() {
         webTestClient.get()
                 .uri("/api/system/config-status")
                 .exchange()
-                .expectStatus().isOk()
+                .expectStatus().isUnauthorized()
                 .expectBody()
-                .json("""
-                        {
-                          "naverSearchConfigured": true,
-                          "geminiConfigured": true,
-                          "weatherConfigured": true
-                        }
-                        """)
-                .jsonPath("$.naverSearchConfigured").isBoolean()
-                .jsonPath("$.geminiConfigured").isBoolean()
-                .jsonPath("$.weatherConfigured").isBoolean()
-                .jsonPath("$.clientId").doesNotExist()
-                .jsonPath("$.clientSecret").doesNotExist()
-                .jsonPath("$.apiKey").doesNotExist()
-                .jsonPath("$.serviceKey").doesNotExist();
+                .jsonPath("$.code").isEqualTo("AUTHENTICATION_REQUIRED");
     }
 
     @Test
@@ -73,7 +60,7 @@ class BusanTripApplicationTests {
         webTestClient.get()
                 .uri("/api/places/search")
                 .exchange()
-                .expectStatus().isBadRequest();
+                .expectStatus().isUnauthorized();
     }
 
     @Test
@@ -84,7 +71,7 @@ class BusanTripApplicationTests {
                         .queryParam("query", "   ")
                         .build())
                 .exchange()
-                .expectStatus().isBadRequest();
+                .expectStatus().isUnauthorized();
     }
 
     @Test
@@ -96,7 +83,7 @@ class BusanTripApplicationTests {
                         {"message":"   "}
                         """)
                 .exchange()
-                .expectStatus().isBadRequest();
+                .expectStatus().isForbidden();
     }
 
     @Test
@@ -108,9 +95,7 @@ class BusanTripApplicationTests {
                         {"message":"서울 강남 관광지를 알려주세요."}
                         """)
                 .exchange()
-                .expectStatus().isBadRequest()
-                .expectBody()
-                .jsonPath("$.message").isEqualTo("부산 지역 요청만 분석할 수 있습니다.");
+                .expectStatus().isForbidden();
     }
 
     @Test
@@ -122,6 +107,6 @@ class BusanTripApplicationTests {
                         {"message":"   "}
                         """)
                 .exchange()
-                .expectStatus().isBadRequest();
+                .expectStatus().isForbidden();
     }
 }
