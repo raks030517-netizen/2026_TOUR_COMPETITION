@@ -16,13 +16,15 @@ public class TourismService {
 
     private final LocalTourismClient localTourismClient;
     private final RelatedTourismClient relatedTourismClient;
+    private final CategoryKeywordResolver categoryKeywordResolver;
 
     public TourismService(
             LocalTourismClient localTourismClient,
-            RelatedTourismClient relatedTourismClient
+            RelatedTourismClient relatedTourismClient, CategoryKeywordResolver categoryKeywordResolver
     ) {
         this.localTourismClient = localTourismClient;
         this.relatedTourismClient = relatedTourismClient;
+        this.categoryKeywordResolver = categoryKeywordResolver;
     }
 
     /**
@@ -132,15 +134,16 @@ public class TourismService {
             int pageNo,
             int numOfRows
     ) {
+        String resolvedKeyword =
+                categoryKeywordResolver.resolve(keyword);
 
         return relatedTourismClient.searchRelatedTourism(
                 baseYm,
                 signguCd,
-                keyword,
+                resolvedKeyword,
                 pageNo,
                 numOfRows
         ).map(this::toRelatedTourismResponse);
-
     }
 
     /**

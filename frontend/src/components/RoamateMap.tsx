@@ -1,16 +1,118 @@
-import { useEffect, useRef, useState } from "react";
-import { loadNaverMaps } from "../lib/naverMaps";
-import type { Coordinate, OptimizedRoute, TourismPlace } from "../types";
-interface Props { currentLocation: Coordinate; accuracy?: number; places: TourismPlace[]; selectedId?: string; route?: OptimizedRoute; onSelect: (place: TourismPlace) => void; }
-export default function RoamateMap({ currentLocation, accuracy, places, selectedId, route, onSelect }: Props) {
-  const element = useRef<HTMLDivElement|null>(null); const map = useRef<any>(null); const overlays = useRef<any[]>([]); const [error,setError]=useState("");
-  useEffect(()=>{ let cancelled=false; loadNaverMaps().then(()=>{ if(cancelled||!element.current||map.current)return; map.current=new window.naver.maps.Map(element.current,{center:new window.naver.maps.LatLng(currentLocation.latitude,currentLocation.longitude),zoom:13,minZoom:8,mapDataControl:false,zoomControl:false,scaleControl:false});}).catch(e=>setError(e instanceof Error?e.message:"지도 오류")); return()=>{cancelled=true};},[]);
-  useEffect(()=>{ if(!map.current||!window.naver?.maps)return; overlays.current.forEach(o=>o.setMap?.(null)); overlays.current=[]; const bounds=new window.naver.maps.LatLngBounds(); const current=new window.naver.maps.LatLng(currentLocation.latitude,currentLocation.longitude); bounds.extend(current);
-    const circle=new window.naver.maps.Circle({map:map.current,center:current,radius:Math.min(Math.max(accuracy??80,35),500),fillColor:"#2d84ff",fillOpacity:.12,strokeColor:"#2d84ff",strokeOpacity:.35,strokeWeight:1});
-    const currentMarker=new window.naver.maps.Marker({map:map.current,position:current,icon:{content:'<div class="current-location-marker"><span></span><b>내 위치</b></div>',anchor:new window.naver.maps.Point(24,24)},zIndex:400}); overlays.current.push(circle,currentMarker);
-    const display=route?.orderedPlaces?.length?route.orderedPlaces:places; display.forEach((p,i)=>{ const pos=new window.naver.maps.LatLng(p.latitude,p.longitude); bounds.extend(pos); const marker=new window.naver.maps.Marker({map:map.current,position:pos,title:p.name,icon:{content:`<button class="place-marker ${selectedId===p.id?"selected":""}"><span>${i+1}</span></button>`,anchor:new window.naver.maps.Point(24,48)},zIndex:300-i}); window.naver.maps.Event.addListener(marker,"click",()=>onSelect(p)); overlays.current.push(marker); });
-    if(route?.path?.length){ const path=route.path.map(p=>new window.naver.maps.LatLng(p.latitude,p.longitude)); path.forEach(p=>bounds.extend(p)); const glow=new window.naver.maps.Polyline({map:map.current,path,strokeColor:"#fff",strokeWeight:11,strokeOpacity:.75,strokeLineCap:"round",strokeLineJoin:"round"}); const main=new window.naver.maps.Polyline({map:map.current,path,strokeColor:"#6f4cff",strokeWeight:6,strokeOpacity:.96,strokeLineCap:"round",strokeLineJoin:"round"}); overlays.current.push(glow,main); }
-    map.current.fitBounds(bounds,{top:110,right:100,bottom:220,left:90});
-  },[accuracy,currentLocation,onSelect,places,route,selectedId]);
-  return <div className="map-wrap"><div ref={element} className="naver-map"/>{error&&<div className="map-error"><strong>네이버 지도 오류</strong><span>{error}</span></div>}<div className="map-controls"><button onClick={()=>{map.current?.panTo(new window.naver.maps.LatLng(currentLocation.latitude,currentLocation.longitude));map.current?.setZoom(14)}}>◎</button><button onClick={()=>map.current?.setZoom(map.current.getZoom()+1)}>＋</button><button onClick={()=>map.current?.setZoom(map.current.getZoom()-1)}>－</button></div></div>;
+import {useEffect, useRef, useState} from "react";
+import {loadNaverMaps} from "../lib/naverMaps";
+import type {Coordinate, OptimizedRoute, TourismPlace} from "../types";
+
+interface Props {
+    currentLocation: Coordinate;
+    accuracy?: number;
+    places: TourismPlace[];
+    selectedId?: string;
+    route?: OptimizedRoute;
+    onSelect: (place: TourismPlace) => void;
+}
+
+export default function RoamateMap({currentLocation, accuracy, places, selectedId, route, onSelect}: Props) {
+    const element = useRef<HTMLDivElement | null>(null);
+    const map = useRef<any>(null);
+    const overlays = useRef<any[]>([]);
+    const [error, setError] = useState("");
+    useEffect(() => {
+        let cancelled = false;
+        loadNaverMaps().then(() => {
+            if (cancelled || !element.current || map.current) return;
+            map.current = new window.naver.maps.Map(element.current, {
+                center: new window.naver.maps.LatLng(currentLocation.latitude, currentLocation.longitude),
+                zoom: 13,
+                minZoom: 8,
+                mapDataControl: false,
+                zoomControl: false,
+                scaleControl: false
+            });
+        }).catch(e => setError(e instanceof Error ? e.message : "지도 오류"));
+        return () => {
+            cancelled = true
+        };
+    }, []);
+    useEffect(() => {
+        if (!map.current || !window.naver?.maps) return;
+        overlays.current.forEach(o => o.setMap?.(null));
+        overlays.current = [];
+        const bounds = new window.naver.maps.LatLngBounds();
+        const current = new window.naver.maps.LatLng(currentLocation.latitude, currentLocation.longitude);
+        bounds.extend(current);
+        const circle = new window.naver.maps.Circle({
+            map: map.current,
+            center: current,
+            radius: Math.min(Math.max(accuracy ?? 80, 35), 500),
+            fillColor: "#2d84ff",
+            fillOpacity: .12,
+            strokeColor: "#2d84ff",
+            strokeOpacity: .35,
+            strokeWeight: 1
+        });
+        const currentMarker = new window.naver.maps.Marker({
+            map: map.current,
+            position: current,
+            icon: {
+                content: '<div class="current-location-marker"><span></span><b>내 위치</b></div>',
+                anchor: new window.naver.maps.Point(24, 24)
+            },
+            zIndex: 400
+        });
+        overlays.current.push(circle, currentMarker);
+        const display = route?.orderedPlaces?.length ? route.orderedPlaces : places;
+        display.forEach((p, i) => {
+            const pos = new window.naver.maps.LatLng(p.latitude, p.longitude);
+            bounds.extend(pos);
+            const marker = new window.naver.maps.Marker({
+                map: map.current,
+                position: pos,
+                title: p.name,
+                icon: {
+                    content: `<button class="place-marker ${selectedId === p.id ? "selected" : ""}"><span>${i + 1}</span></button>`,
+                    anchor: new window.naver.maps.Point(24, 48)
+                },
+                zIndex: 300 - i
+            });
+            window.naver.maps.Event.addListener(marker, "click", () => onSelect(p));
+            overlays.current.push(marker);
+        });
+        if (route?.path?.length) {
+            const path = route.path.map(p => new window.naver.maps.LatLng(p.latitude, p.longitude));
+            path.forEach(p => bounds.extend(p));
+            const glow = new window.naver.maps.Polyline({
+                map: map.current,
+                path,
+                strokeColor: "#fff",
+                strokeWeight: 11,
+                strokeOpacity: .75,
+                strokeLineCap: "round",
+                strokeLineJoin: "round"
+            });
+            const main = new window.naver.maps.Polyline({
+                map: map.current,
+                path,
+                strokeColor: "#6f4cff",
+                strokeWeight: 6,
+                strokeOpacity: .96,
+                strokeLineCap: "round",
+                strokeLineJoin: "round"
+            });
+            overlays.current.push(glow, main);
+        }
+        map.current.fitBounds(bounds, {top: 110, right: 100, bottom: 220, left: 90});
+    }, [accuracy, currentLocation, onSelect, places, route, selectedId]);
+    return <div className="map-wrap">
+        <div ref={element} className="naver-map"/>
+        {error && <div className="map-error"><strong>네이버 지도 오류</strong><span>{error}</span></div>}
+        <div className="map-controls">
+            <button onClick={() => {
+                map.current?.panTo(new window.naver.maps.LatLng(currentLocation.latitude, currentLocation.longitude));
+                map.current?.setZoom(14)
+            }}>◎
+            </button>
+            <button onClick={() => map.current?.setZoom(map.current.getZoom() + 1)}>＋</button>
+            <button onClick={() => map.current?.setZoom(map.current.getZoom() - 1)}>－</button>
+        </div>
+    </div>;
 }
