@@ -19,6 +19,7 @@ backend/.env.*
 # 빌드 결과 및 IDE 설정
 backend/.gradle/
 backend/build/
+backend/data/
 .gradle-user-home/
 frontend/node_modules/
 frontend/dist/
