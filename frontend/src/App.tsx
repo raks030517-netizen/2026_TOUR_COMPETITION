@@ -1,931 +1,314 @@
-import {
-    FormEvent,
-    useCallback,
-    useMemo,
-    useState,
-} from "react";
-
+import { useCallback, useMemo, useState } from "react";
+import type { FormEvent } from "react";
 import { optimizeRoute, searchTourism } from "./api";
 import ChatBottomSheet from "./components/ChatBottomSheet";
 import RoamateMap from "./components/RoamateMap";
-
-import type {
-    Coordinate,
-    OptimizedRoute,
-    TourismPlace,
-    TravelPhase,
-} from "./types";
-
+import type { Coordinate, OptimizedRoute, TourismPlace, TravelPhase } from "./types";
 import "./styles.css";
 
-const FALLBACK: Coordinate = {
-    latitude: 35.1795543,
-    longitude: 129.0756416,
-};
+const BUSAN_CITY_HALL: Coordinate = { latitude: 35.1795543, longitude: 129.0756416 };
+
+const CATEGORIES = ["추천", "바다", "시장", "카페", "문화", "체험", "공원", "야경"];
 
 const IMAGES = [
-    "https://images.unsplash.com/photo-1517154421773-0529f29ea451?auto=format&fit=crop&w=1000&q=80",
-    "https://images.unsplash.com/photo-1588416936097-41850ab3d86d?auto=format&fit=crop&w=1000&q=80",
-    "https://images.unsplash.com/photo-1534274988757-a28bf1a57c17?auto=format&fit=crop&w=1000&q=80",
+  "https://images.unsplash.com/photo-1517154421773-0529f29ea451?auto=format&fit=crop&w=1000&q=80",
+  "https://images.unsplash.com/photo-1588416936097-41850ab3d86d?auto=format&fit=crop&w=1000&q=80",
+  "https://images.unsplash.com/photo-1534274988757-a28bf1a57c17?auto=format&fit=crop&w=1000&q=80",
+  "https://images.unsplash.com/photo-1470252649378-9c29740c9fa8?auto=format&fit=crop&w=1000&q=80",
 ];
 
-/**
- * 화면에 표시할 관광 카테고리 목록.
- *
- * 실제 관광공사 API 검색어 변환은
- * 백엔드 CategoryKeywordResolver가 담당한다.
- */
-const CATEGORY_NAMES = [
-    "추천",
-    "바다",
-    "시장",
-    "카페",
-    "문화",
-    "체험",
-    "공원",
-    "야경",
-];
+function toPlaces(response: Awaited<ReturnType<typeof searchTourism>>): TourismPlace[] {
+  const result: TourismPlace[] = [];
 
-/**
- * 다양한 외부 API 응답 구조에서 목록 배열을 찾는다.
- *
- * 현재 백엔드 내부 DTO 예시:
- * {
- *   totalCount,
- *   pageNo,
- *   numOfRows,
- *   places: [...]
- * }
- */
-function findItems(value: unknown): any[] {
-    if (Array.isArray(value)) {
-        return value;
-    }
+  (response.places ?? []).forEach((place, index) => {
+    const latitude = Number(place.latitude);
+    const longitude = Number(place.longitude);
+    if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) return;
 
-    if (!value || typeof value !== "object") {
-        return [];
-    }
+    const category = place.subCategory || place.category || "부산 여행";
+    result.push({
+        id: `${place.name}-${place.rank ?? index + 1}-${latitude.toFixed(5)}`,
+        name: place.name || `추천 장소 ${index + 1}`,
+        district: place.district || "부산광역시",
+        category,
+        subCategory: place.subCategory,
+        description: `${place.district || "부산"}에서 만나는 ${category} 여행지입니다.`,
+        image: IMAGES[index % IMAGES.length],
+        latitude,
+        longitude,
+        rank: place.rank ?? undefined,
+    });
+  });
 
-    const objectValue = value as Record<string, unknown>;
-
-    const candidateKeys = [
-        "places",
-        "item",
-        "items",
-        "results",
-        "result",
-        "data",
-        "list",
-        "body",
-        "response",
-    ];
-
-    for (const key of candidateKeys) {
-        const found = findItems(objectValue[key]);
-
-        if (found.length > 0) {
-            return found;
-        }
-    }
-
-    for (const child of Object.values(objectValue)) {
-        const found = findItems(child);
-
-        if (found.length > 0) {
-            return found;
-        }
-    }
-
-    return [];
-}
-
-/**
- * 후보 키 중 첫 번째 유효한 문자열 값을 반환한다.
- */
-function getStringValue(
-    object: any,
-    keys: string[],
-): string {
-    for (const key of keys) {
-        const value = object?.[key];
-
-        if (
-            typeof value === "string" &&
-            value.trim()
-        ) {
-            return value.trim();
-        }
-
-        if (typeof value === "number") {
-            return String(value);
-        }
-    }
-
-    return "";
-}
-
-/**
- * 후보 키 중 첫 번째 유효한 숫자 값을 반환한다.
- */
-function getNumberValue(
-    object: any,
-    keys: string[],
-): number {
-    for (const key of keys) {
-        const rawValue = object?.[key];
-
-        if (
-            rawValue === null ||
-            rawValue === undefined ||
-            rawValue === ""
-        ) {
-            continue;
-        }
-
-        const numberValue = Number(rawValue);
-
-        if (Number.isFinite(numberValue)) {
-            return numberValue;
-        }
-    }
-
-    return Number.NaN;
-}
-
-/**
- * 외부 API 또는 내부 DTO 응답을
- * 화면용 TourismPlace 배열로 변환한다.
- */
-function normalize(raw: unknown): TourismPlace[] {
-    return findItems(raw)
-        .map((item, index) => {
-            const name =
-                getStringValue(item, [
-                    "title",
-                    "name",
-                    "contenttitle",
-                    "hubTatsNm",
-                    "rlteTatsNm",
-                ]) || `추천 장소 ${index + 1}`;
-
-            const rank = getStringValue(item, [
-                "rank",
-                "hubRank",
-                "rlteRank",
-            ]);
-
-            const district = getStringValue(item, [
-                "district",
-                "signguNm",
-                "rlteSignguNm",
-            ]);
-
-            const category =
-                getStringValue(item, [
-                    "subCategory",
-                    "category",
-                    "cat2",
-                    "hubCtgryMclsNm",
-                    "rlteCtgryMclsNm",
-                    "hubCtgryLclsNm",
-                    "rlteCtgryLclsNm",
-                ]) || "관광지";
-
-            return {
-                id:
-                    getStringValue(item, [
-                        "contentid",
-                        "contentId",
-                        "id",
-                        "hubTatsCd",
-                        "rlteTatsCd",
-                    ]) ||
-                    `${name}-${rank || index + 1}`,
-
-                name,
-
-                description:
-                    getStringValue(item, [
-                        "overview",
-                        "description",
-                        "rlteTatsIntrcn",
-                    ]) ||
-                    "함께 방문하기 좋은 관광지입니다.",
-
-                address:
-                    getStringValue(item, [
-                        "addr1",
-                        "address",
-                        "rlteBsicAdres",
-                    ]) ||
-                    district ||
-                    "부산광역시",
-
-                image:
-                    getStringValue(item, [
-                        "firstimage",
-                        "firstImage",
-                        "image",
-                        "rlteTatsImg",
-                    ]) ||
-                    IMAGES[index % IMAGES.length],
-
-                category,
-
-                distance: getStringValue(item, [
-                    "distance",
-                    "rlteTatsDstnc",
-                ]),
-
-                latitude: getNumberValue(item, [
-                    "mapy",
-                    "mapY",
-                    "latitude",
-                    "lat",
-                    "rlteTatsYcrd",
-                ]),
-
-                longitude: getNumberValue(item, [
-                    "mapx",
-                    "mapX",
-                    "longitude",
-                    "lng",
-                    "rlteTatsXcrd",
-                ]),
-            };
-        })
-        .filter(
-            (place) =>
-                Number.isFinite(place.latitude) &&
-                Number.isFinite(place.longitude),
-        );
+  return result;
 }
 
 function formatDistance(meters: number): string {
-    if (meters < 1000) {
-        return `${Math.round(meters)}m`;
-    }
-
-    return `${(meters / 1000).toFixed(1)}km`;
+  return meters < 1000 ? `${Math.round(meters)}m` : `${(meters / 1000).toFixed(1)}km`;
 }
 
-function formatDuration(
-    milliseconds: number,
-): string {
-    const minutes = Math.max(
-        1,
-        Math.round(milliseconds / 60000),
-    );
+function formatDuration(milliseconds: number): string {
+  const minutes = Math.max(1, Math.round(milliseconds / 60_000));
+  const hours = Math.floor(minutes / 60);
+  return hours ? `${hours}시간 ${minutes % 60}분` : `${minutes}분`;
+}
 
-    const hours = Math.floor(minutes / 60);
-    const remainingMinutes = minutes % 60;
-
-    if (hours > 0) {
-        return `${hours}시간 ${remainingMinutes}분`;
-    }
-
-    return `${minutes}분`;
+function phaseLabel(phase: TravelPhase): string {
+  return {
+    idle: "여행을 시작할 준비가 되었어요",
+    results: "추천 장소를 골라보세요",
+    optimizing: "가장 효율적인 순서를 계산 중이에요",
+    "route-ready": "오늘의 여행 경로가 준비됐어요",
+    travelling: "ROAMATE가 여행을 함께하고 있어요",
+    completed: "오늘의 여행을 잘 마무리했어요",
+  }[phase];
 }
 
 export default function App() {
-    const [location, setLocation] =
-        useState<Coordinate>(FALLBACK);
+  const [location, setLocation] = useState<Coordinate>(BUSAN_CITY_HALL);
+  const [accuracy, setAccuracy] = useState<number>();
+  const [query, setQuery] = useState("");
+  const [places, setPlaces] = useState<TourismPlace[]>([]);
+  const [route, setRoute] = useState<OptimizedRoute>();
+  const [selectedId, setSelectedId] = useState<string>();
+  const [phase, setPhase] = useState<TravelPhase>("idle");
+  const [notice, setNotice] = useState("부산의 테마를 검색하면 현재 위치에서 시작하는 여행 동선을 제안해 드려요.");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [completedCount, setCompletedCount] = useState(0);
 
-    const [accuracy, setAccuracy] =
-        useState<number>();
+  const orderedPlaces = route?.orderedPlaces ?? places;
+  const selectedPlace = useMemo(
+    () => orderedPlaces.find((place) => place.id === selectedId) ?? orderedPlaces[0],
+    [orderedPlaces, selectedId],
+  );
+  const nextPlace = orderedPlaces[completedCount];
 
-    const [query, setQuery] = useState("");
+  const selectPlace = useCallback((place: TourismPlace) => {
+    setSelectedId(place.id);
+    setNotice(`${place.name} 정보를 확인하고 있어요.`);
+  }, []);
 
-    const [places, setPlaces] =
-        useState<TourismPlace[]>([]);
+  const locate = () => {
+    if (!navigator.geolocation) {
+      setNotice("이 브라우저에서는 위치를 가져올 수 없어 부산시청을 출발지로 사용합니다.");
+      return;
+    }
 
-    const [selectedId, setSelectedId] =
-        useState<string>();
-
-    const [route, setRoute] =
-        useState<OptimizedRoute>();
-
-    const [phase, setPhase] =
-        useState<TravelPhase>("idle");
-
-    const [notice, setNotice] = useState(
-        "관광지를 검색하면 내 위치에서 출발하는 최적 경로를 만들 수 있어요.",
+    setNotice("현재 위치를 확인하고 있어요.");
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setLocation({ latitude: position.coords.latitude, longitude: position.coords.longitude });
+        setAccuracy(position.coords.accuracy);
+        setNotice("현재 위치를 출발지로 설정했어요.");
+      },
+      () => setNotice("위치 권한을 받지 못해 부산시청을 출발지로 사용합니다."),
+      { enableHighAccuracy: true, timeout: 10_000, maximumAge: 60_000 },
     );
+  };
 
-    const [error, setError] = useState("");
+  const runSearch = async (keyword: string) => {
+    const normalizedKeyword = keyword.trim();
+    if (!normalizedKeyword || loading) return;
 
-    const [loading, setLoading] =
-        useState(false);
+    setLoading(true);
+    setError("");
+    setRoute(undefined);
+    setCompletedCount(0);
+    setPhase("idle");
+    setNotice(`“${normalizedKeyword}”와 어울리는 부산 여행지를 찾고 있어요.`);
 
-    const ordered =
-        route?.orderedPlaces ?? places;
+    try {
+      const response = await searchTourism(normalizedKeyword);
+      const results = toPlaces(response);
+      setPlaces(results);
+      setSelectedId(results[0]?.id);
 
-    const selected = useMemo(
-        () =>
-            ordered.find(
-                (place) => place.id === selectedId,
-            ),
-        [ordered, selectedId],
-    );
-
-    const select = useCallback(
-        (place: TourismPlace) => {
-            setSelectedId(place.id);
-            setNotice(
-                `${place.name}을 선택했습니다.`,
-            );
-        },
-        [],
-    );
-
-    /**
-     * 브라우저 현재 위치를 조회한다.
-     */
-    function locate() {
-        if (!navigator.geolocation) {
-            setNotice(
-                "현재 브라우저는 위치 조회를 지원하지 않아 부산시청을 출발지로 사용합니다.",
-            );
-            return;
-        }
-
-        navigator.geolocation.getCurrentPosition(
-            (position) => {
-                setLocation({
-                    latitude:
-                    position.coords.latitude,
-                    longitude:
-                    position.coords.longitude,
-                });
-
-                setAccuracy(
-                    position.coords.accuracy,
-                );
-
-                setNotice(
-                    "현재 위치를 연결했습니다.",
-                );
-            },
-            () => {
-                setNotice(
-                    "위치 권한이 없어 부산시청을 임시 출발지로 사용합니다.",
-                );
-            },
-            {
-                enableHighAccuracy: true,
-                timeout: 10000,
-            },
-        );
-    }
-
-    /**
-     * 검색창과 카테고리 버튼이 공통으로 사용하는 검색 함수.
-     *
-     * 카테고리 이름도 그대로 백엔드에 전송한다.
-     * 백엔드에서 실제 관광 API 검색어로 변환한다.
-     */
-    async function executeSearch(
-        keyword: string,
-    ) {
-        const trimmedKeyword = keyword.trim();
-
-        if (!trimmedKeyword || loading) {
-            return;
-        }
-
-        setLoading(true);
-        setError("");
-        setRoute(undefined);
-        setPlaces([]);
-        setSelectedId(undefined);
-        setPhase("idle");
-
-        try {
-            const raw = await searchTourism(
-                trimmedKeyword,
-            );
-
-            const list = normalize(raw);
-
-            setPlaces(list);
-            setSelectedId(list[0]?.id);
-
-            if (list.length > 0) {
-                setPhase("places-ready");
-
-                setNotice(
-                    `${list.length}개 장소를 찾았습니다.`,
-                );
-            } else {
-                setPhase("idle");
-
-                setNotice(
-                    `"${trimmedKeyword}" 검색 결과가 없거나 지도에 표시할 좌표가 없습니다.`,
-                );
-            }
-        } catch (caughtError) {
-            setPlaces([]);
-            setSelectedId(undefined);
-            setPhase("idle");
-
-            setError(
-                caughtError instanceof Error
-                    ? caughtError.message
-                    : "관광지 검색 중 오류가 발생했습니다.",
-            );
-
-            setNotice(
-                "관광지 정보를 불러오지 못했습니다.",
-            );
-        } finally {
-            setLoading(false);
-        }
-    }
-
-    /**
-     * 검색창 제출 처리.
-     */
-    async function search(
-        event: FormEvent<HTMLFormElement>,
-    ) {
-        event.preventDefault();
-        await executeSearch(query);
-    }
-
-    /**
-     * 카테고리 버튼 클릭 처리.
-     *
-     * 예:
-     * 프론트: "바다" 전송
-     * 백엔드: "바다" → "해수욕장" 변환
-     */
-    async function handleCategoryClick(
-        category: string,
-    ) {
-        setQuery(category);
-        await executeSearch(category);
-    }
-
-    /**
-     * 조회된 장소의 최적 경로를 계산한다.
-     */
-    async function build() {
-        if (!places.length) {
-            setError(
-                "먼저 장소를 검색해주세요.",
-            );
-            return;
-        }
-
-        setError("");
-        setPhase("route-loading");
-
+      if (results.length) {
+        setPhase("results");
         setNotice(
-            "모든 장소의 방문 순서와 실제 도로 경로를 계산하고 있습니다.",
+          response.source === "demo"
+            ? `발표용 데모 코스 ${results.length}곳을 준비했어요. 실제 API 키를 설정하면 실시간 데이터로 바뀝니다.`
+            : `${results.length}곳을 찾았어요. 마음에 드는 장소를 고르거나 바로 경로를 만들어 보세요.`,
         );
+      } else {
+        setPhase("idle");
+        setNotice("지도에 표시할 수 있는 장소를 찾지 못했어요. 다른 테마를 검색해 보세요.");
+      }
+    } catch (caughtError) {
+      setPlaces([]);
+      setSelectedId(undefined);
+      setPhase("idle");
+      setError(caughtError instanceof Error ? caughtError.message : "관광지 검색 중 오류가 발생했습니다.");
+      setNotice("관광지 정보를 불러오지 못했어요.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-        try {
-            const result = await optimizeRoute(
-                location,
-                places,
-            );
+  const handleSearch = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    void runSearch(query);
+  };
 
-            setRoute(result);
+  const buildRoute = async () => {
+    if (!places.length || loading) return;
+    setLoading(true);
+    setError("");
+    setPhase("optimizing");
+    setNotice("거리와 방문 순서를 비교해 가장 효율적인 경로를 계산하고 있어요.");
 
-            setSelectedId(
-                result.orderedPlaces[0]?.id,
-            );
+    try {
+      const optimizedRoute = await optimizeRoute(location, places);
+      setRoute(optimizedRoute);
+      setSelectedId(optimizedRoute.orderedPlaces[0]?.id);
+      setCompletedCount(0);
+      setPhase("route-ready");
+      setNotice(
+        optimizedRoute.fallback
+          ? "도로 경로 API가 설정되지 않아 직선거리 기반의 발표용 경로를 만들었어요."
+          : "실제 도로 데이터를 반영한 최적 경로를 만들었어요.",
+      );
+    } catch (caughtError) {
+      setPhase("results");
+      setError(caughtError instanceof Error ? caughtError.message : "경로 계산 중 오류가 발생했습니다.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-            setPhase("route-ready");
-
-            setNotice(
-                `총 ${formatDistance(
-                    result.totalDistanceMeters,
-                )} · ${formatDuration(
-                    result.totalDurationMillis,
-                )} 경로를 만들었습니다.`,
-            );
-        } catch (caughtError) {
-            setError(
-                caughtError instanceof Error
-                    ? caughtError.message
-                    : "경로 계산 중 오류가 발생했습니다.",
-            );
-
-            setPhase("places-ready");
-        }
+  const advanceTravel = () => {
+    if (!route) {
+      void buildRoute();
+      return;
     }
 
-    return (
-        <div className="page">
-            <section className="dashboard">
-                <aside className="brand-panel">
-                    <div className="brand">
-                        <span>✦</span>
+    if (phase !== "travelling") {
+      setPhase("travelling");
+      setSelectedId(nextPlace?.id);
+      setNotice(`${nextPlace?.name ?? "첫 번째 장소"}로 출발해 볼까요?`);
+      return;
+    }
 
-                        <div>
-                            <strong>ROAMATE</strong>
-                            <small>
-                                AI REAL-TIME TRAVEL OS
-                            </small>
-                        </div>
-                    </div>
+    const nextCount = completedCount + 1;
+    if (nextCount >= orderedPlaces.length) {
+      setCompletedCount(nextCount);
+      setPhase("completed");
+      setNotice("모든 장소를 방문했어요. 오늘의 부산 여행은 어땠나요?");
+      return;
+    }
 
-                    <h1>
-                        여행의 변화를 먼저 읽고,
-                        <em>
-                            {" "}
-                            지금 필요한 한 가지를
-                        </em>{" "}
-                        제안합니다.
-                    </h1>
+    setCompletedCount(nextCount);
+    setSelectedId(orderedPlaces[nextCount].id);
+    setNotice(`${orderedPlaces[nextCount].name}로 다음 일정을 이어가요.`);
+  };
 
-                    <p>
-                        현재 위치, 공공 관광데이터,
-                        실제 도로 경로와 AI 대화를 한
-                        화면에서 연결합니다.
-                    </p>
+  const actionLabel = !route ? "최적 경로 만들기" : phase === "travelling" ? "다음 장소로" : phase === "completed" ? "새 코스 찾기" : "여행 시작하기";
 
-                    {[
-                        ["◉", "실시간 위치 분석"],
-                        ["⌁", "최적 경로 엔진"],
-                        ["✦", "Hidden Spot 추천"],
-                        ["⚡", "원터치 여행 액션"],
-                    ].map(([icon, title]) => (
-                        <article
-                            className="feature"
-                            key={title}
-                        >
-                            <span>{icon}</span>
+  return (
+    <div className="page">
+      <section className="dashboard">
+        <aside className="brand-panel">
+          <div className="brand">
+            <span aria-hidden="true">✦</span>
+            <div>
+              <strong>ROAMATE</strong>
+              <small>AI REAL-TIME TRAVEL MATE</small>
+            </div>
+          </div>
 
-                            <div>
-                                <strong>{title}</strong>
+          <h1>
+            여행의 변수는 먼저 읽고,
+            <em> 지금 필요한 다음 장소를 제안합니다.</em>
+          </h1>
+          <p>부산 관광 데이터, 현재 위치, 경로와 AI 대화를 하나의 여행 화면에서 연결합니다.</p>
 
-                                <p>
-                                    검색·경로·이동 상태에
-                                    따라 유동적으로
-                                    반응합니다.
-                                </p>
-                            </div>
-                        </article>
-                    ))}
+          <div className="feature-list">
+            {[
+              ["◎", "현재 위치 기반", "출발지를 갱신해 동선을 다시 계산합니다."],
+              ["↗", "스마트 루트", "방문 순서를 정리하고 길찾기 정보를 보여줍니다."],
+              ["✦", "AI 여행 메이트", "날씨·시간·취향 변화에 맞춰 일정을 조정합니다."],
+            ].map(([icon, title, description]) => (
+              <article className="feature" key={title}>
+                <span>{icon}</span>
+                <div><strong>{title}</strong><p>{description}</p></div>
+              </article>
+            ))}
+          </div>
 
-                    <button
-                        type="button"
-                        className="location"
-                        onClick={locate}
-                    >
-                        <i />
+          <button type="button" className="location" onClick={locate}>
+            <i>◎</i>
+            <span><strong>현재 위치 연결</strong><small>GPS를 출발지로 사용합니다</small></span>
+          </button>
+        </aside>
 
-                        <span>
-                            <strong>
-                                현재 위치 연결
-                            </strong>
+        <main className="console">
+          <header className="search">
+            <form onSubmit={handleSearch}>
+              <span aria-hidden="true">⌕</span>
+              <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="예: 해운대, 야경, 조용한 카페" disabled={loading} />
+              <button type="submit" disabled={loading || !query.trim()}>{loading ? "찾는 중" : "검색"}</button>
+            </form>
+            <nav aria-label="추천 테마">
+              {CATEGORIES.map((category) => (
+                <button key={category} type="button" disabled={loading} onClick={() => { setQuery(category); void runSearch(category); }}>{category}</button>
+              ))}
+            </nav>
+          </header>
 
-                            <small>
-                                눌러서 GPS를 다시
-                                확인하세요
-                            </small>
-                        </span>
-                    </button>
-                </aside>
+          <div className="viewport">
+            <RoamateMap currentLocation={location} accuracy={accuracy} places={places} selectedId={selectedPlace?.id} route={route} onSelect={selectPlace} />
 
-                <main className="console">
-                    <header className="search">
-                        <form onSubmit={search}>
-                            <span>⌕</span>
+            {selectedPlace && (
+              <button type="button" className="place-card" onClick={() => selectPlace(selectedPlace)}>
+                <img src={selectedPlace.image} alt="" />
+                <span><small>{route ? `STOP ${Math.max(1, orderedPlaces.findIndex((place) => place.id === selectedPlace.id) + 1)}` : "RECOMMENDED"}</small><strong>{selectedPlace.name}</strong><b>{selectedPlace.category} · {selectedPlace.district}</b></span>
+              </button>
+            )}
 
-                            <input
-                                value={query}
-                                onChange={(event) =>
-                                    setQuery(
-                                        event.target.value,
-                                    )
-                                }
-                                placeholder="어디로 떠날까요?"
-                                disabled={loading}
-                            />
-
-                            <button
-                                type="submit"
-                                disabled={
-                                    loading ||
-                                    !query.trim()
-                                }
-                            >
-                                {loading
-                                    ? "SEARCHING"
-                                    : "SEARCH"}
-                            </button>
-                        </form>
-
-                        <nav>
-                            {CATEGORY_NAMES.map(
-                                (category) => (
-                                    <button
-                                        type="button"
-                                        key={category}
-                                        disabled={loading}
-                                        onClick={() =>
-                                            handleCategoryClick(
-                                                category,
-                                            )
-                                        }
-                                    >
-                                        {category}
-                                    </button>
-                                ),
-                            )}
-                        </nav>
-                    </header>
-
-                    <div className="viewport">
-                        <RoamateMap
-                            currentLocation={location}
-                            accuracy={accuracy}
-                            places={places}
-                            selectedId={selectedId}
-                            route={route}
-                            onSelect={select}
-                        />
-
-                        {selected && (
-                            <button
-                                type="button"
-                                className="place-card"
-                                onClick={() =>
-                                    select(selected)
-                                }
-                            >
-                                <img
-                                    src={selected.image}
-                                    alt={selected.name}
-                                />
-
-                                <span>
-                                    <small>
-                                        NEXT PLACE
-                                    </small>
-
-                                    <strong>
-                                        {selected.name}
-                                    </strong>
-
-                                    <b>
-                                        {selected.category}
-                                    </b>
-                                </span>
-                            </button>
-                        )}
-
-                        <section className="action">
-                            <span className="core">
-                                ✦
-                            </span>
-
-                            <div>
-                                <strong>
-                                    {phaseLabel(phase)}
-                                </strong>
-
-                                <p>{notice}</p>
-                            </div>
-
-                            {!route ? (
-                                <button
-                                    type="button"
-                                    onClick={build}
-                                    disabled={
-                                        loading ||
-                                        !places.length
-                                    }
-                                >
-                                    최적 경로 만들기
-                                </button>
-                            ) : phase !== "moving" ? (
-                                <button
-                                    type="button"
-                                    onClick={() => {
-                                        setPhase("moving");
-
-                                        setNotice(
-                                            `${
-                                                ordered[0]?.name ??
-                                                "첫 번째 장소"
-                                            }으로 이동을 시작합니다.`,
-                                        );
-                                    }}
-                                >
-                                    이동 시작
-                                </button>
-                            ) : (
-                                <button
-                                    type="button"
-                                    onClick={() => {
-                                        setPhase("arrived");
-
-                                        setNotice(
-                                            `${
-                                                selected?.name ??
-                                                "선택한 장소"
-                                            }에 도착했습니다.`,
-                                        );
-                                    }}
-                                >
-                                    도착 처리
-                                </button>
-                            )}
-                        </section>
-
-                        <section className="dock">
-                            <header>
-                                <strong>
-                                    오늘의 최적 일정
-                                </strong>
-
-                                {route && (
-                                    <span>
-                                        {formatDistance(
-                                            route.totalDistanceMeters,
-                                        )}{" "}
-                                        ·{" "}
-                                        {formatDuration(
-                                            route.totalDurationMillis,
-                                        )}
-                                    </span>
-                                )}
-                            </header>
-
-                            <div className="timeline">
-                                {ordered.length > 0 ? (
-                                    ordered
-                                        .slice(0, 5)
-                                        .map(
-                                            (
-                                                place,
-                                                index,
-                                            ) => (
-                                                <button
-                                                    type="button"
-                                                    className={
-                                                        selectedId ===
-                                                        place.id
-                                                            ? "selected"
-                                                            : ""
-                                                    }
-                                                    onClick={() =>
-                                                        select(place)
-                                                    }
-                                                    key={place.id}
-                                                >
-                                                    <i>
-                                                        {index + 1}
-                                                    </i>
-
-                                                    <img
-                                                        src={
-                                                            place.image
-                                                        }
-                                                        alt={
-                                                            place.name
-                                                        }
-                                                    />
-
-                                                    <strong>
-                                                        {place.name}
-                                                    </strong>
-
-                                                    <small>
-                                                        {
-                                                            place.category
-                                                        }
-                                                    </small>
-                                                </button>
-                                            ),
-                                        )
-                                ) : (
-                                    <p>
-                                        장소를 검색하면
-                                        디지털 타임라인이
-                                        생성됩니다.
-                                    </p>
-                                )}
-                            </div>
-                        </section>
-                    </div>
-
-                    {error && (
-                        <div className="error">
-                            {error}
-                        </div>
-                    )}
-
-                    <ChatBottomSheet
-                        context={{
-                            currentLocation:
-                            location,
-                            selectedPlace:
-                            selected,
-                            route,
-                            places: ordered,
-                        }}
-                    />
-                </main>
-
-                <aside className="status">
-                    <article>
-                        <small>MOVE STATUS</small>
-
-                        <h2>
-                            {route
-                                ? phase === "moving"
-                                    ? route.guides[0]
-                                        ?.instruction ||
-                                    "경로를 따라 이동 중"
-                                    : "경로 준비 완료"
-                                : "경로 대기"}
-                        </h2>
-
-                        <p>
-                            {route
-                                ? `${formatDistance(
-                                    route.totalDistanceMeters,
-                                )} · ${formatDuration(
-                                    route.totalDurationMillis,
-                                )}`
-                                : "최적 경로를 만들면 이동 정보가 표시됩니다."}
-                        </p>
-                    </article>
-
-                    <article>
-                        <small>TRAVEL STATE</small>
-
-                        <h3>
-                            {phaseLabel(phase)}
-                        </h3>
-
-                        <p>{notice}</p>
-
-                        <button
-                            type="button"
-                            onClick={build}
-                            disabled={
-                                loading ||
-                                !places.length
-                            }
-                        >
-                            경로 다시 계산
-                        </button>
-                    </article>
-
-                    <article>
-                        <small>
-                            OPTIMAL ORDER
-                        </small>
-
-                        {ordered
-                            .slice(0, 5)
-                            .map(
-                                (place, index) => (
-                                    <button
-                                        type="button"
-                                        className={
-                                            selectedId ===
-                                            place.id
-                                                ? "selected"
-                                                : ""
-                                        }
-                                        onClick={() =>
-                                            select(place)
-                                        }
-                                        key={place.id}
-                                    >
-                                        <i>{index + 1}</i>
-                                        {place.name}
-                                    </button>
-                                ),
-                            )}
-                    </article>
-                </aside>
+            <section className="action" aria-live="polite">
+              <span className="core">✦</span>
+              <div><strong>{phaseLabel(phase)}</strong><p>{notice}</p></div>
+              <button type="button" onClick={phase === "completed" ? () => void runSearch(query || "추천") : advanceTravel} disabled={loading || (!route && !places.length)}>{actionLabel}</button>
             </section>
-        </div>
-    );
-}
 
-function phaseLabel(
-    phase: TravelPhase,
-): string {
-    return {
-        idle: "새로운 여행을 시작할 준비가 됐어요",
-        "places-ready":
-            "추천 장소를 경로로 연결할 수 있어요",
-        "route-loading":
-            "모든 장소의 최적 순서를 계산하고 있어요",
-        "route-ready":
-            "실제 도로 기반 최적 경로가 준비됐어요",
-        moving:
-            "다음 장소로 이동 중이에요",
-        arrived:
-            "장소에 도착했어요",
-    }[phase];
+            <section className="dock">
+              <header>
+                <strong>오늘의 여행 타임라인</strong>
+                {route && <span>{formatDistance(route.totalDistanceMeters)} · {formatDuration(route.totalDurationMillis)}{route.fallback ? " · 예상 거리" : ""}</span>}
+              </header>
+              <div className="timeline">
+                {orderedPlaces.length ? orderedPlaces.slice(0, 6).map((place, index) => (
+                  <button type="button" className={selectedPlace?.id === place.id ? "selected" : ""} onClick={() => selectPlace(place)} key={place.id}>
+                    <i>{index + 1}</i><img src={place.image} alt="" /><strong>{place.name}</strong><small>{place.category}</small>
+                  </button>
+                )) : <p>테마를 검색하면 여기에서 나만의 여행 코스를 만들 수 있어요.</p>}
+              </div>
+            </section>
+          </div>
+
+          {error && <div className="error" role="alert">{error}</div>}
+          <ChatBottomSheet context={{ location, places: orderedPlaces, selectedPlace, route, phase, nextPlace }} />
+        </main>
+
+        <aside className="status">
+          <article>
+            <small>MOVE STATUS</small>
+            <h2>{route ? route.guides[0]?.instruction ?? "다음 장소로 이동할 준비가 되었어요" : "경로를 만들면 이동 정보를 보여드려요"}</h2>
+            <p>{route ? `${formatDistance(route.totalDistanceMeters)} · ${formatDuration(route.totalDurationMillis)}` : "출발지는 부산시청으로 설정되어 있습니다."}</p>
+          </article>
+          <article>
+            <small>TRAVEL STATE</small>
+            <h3>{phaseLabel(phase)}</h3>
+            <p>{notice}</p>
+            <button type="button" onClick={() => void buildRoute()} disabled={loading || !places.length}>경로 다시 계산</button>
+          </article>
+          <article>
+            <small>OPTIMAL ORDER</small>
+            {orderedPlaces.length ? orderedPlaces.slice(0, 6).map((place, index) => <button type="button" className={selectedPlace?.id === place.id ? "selected" : ""} onClick={() => selectPlace(place)} key={place.id}><i>{index + 1}</i>{place.name}</button>) : <p>검색 결과가 여기에 표시됩니다.</p>}
+          </article>
+        </aside>
+      </section>
+    </div>
+  );
 }

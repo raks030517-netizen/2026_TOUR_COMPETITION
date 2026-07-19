@@ -5,8 +5,8 @@ import static org.mockito.Mockito.when;
 
 import com.busantrip.client.LocalTourismClient;
 import com.busantrip.client.RelatedTourismClient;
+import com.busantrip.config.ApiKeyProperties;
 import com.busantrip.dto.external.tourism.LocalTourismApiResponse;
-import com.busantrip.dto.external.tourism.RelatedTourismApiResponse;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -14,9 +14,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-// 2026-07-15 실호출로 확인: 공공데이터포털 API가 결과 0건일 때 "items" 필드를 빈 문자열("")로
-// 내려준다. WebClientConfig의 Jackson 관대 역직렬화 설정으로 이게 null Items가 되는데,
-// TourismService가 body.items().item()을 null 체크 없이 바로 부르다 NPE로 500이 났었다.
 @ExtendWith(MockitoExtension.class)
 class TourismServiceTest {
 
@@ -26,34 +23,56 @@ class TourismServiceTest {
     @Mock
     private RelatedTourismClient relatedTourismClient;
 
-    private TourismService service() {
-        return new TourismService(localTourismClient, relatedTourismClient);
+    private TourismService service(boolean tourismApiConfigured) {
+        ApiKeyProperties properties = new ApiKeyProperties();
+        if (tourismApiConfigured) {
+            properties.getTourism().setServiceKey("test-key");
+        }
+        return new TourismService(
+                localTourismClient,
+                relatedTourismClient,
+                new CategoryKeywordResolver(),
+                new DemoTourismCatalog(),
+                properties
+        );
     }
 
     @Test
-    void 기초지자체_관광지_결과가_없으면_빈_장소목록을_돌려준다() {
+    void localTourismReturnsAnEmptyListWhenTheLiveApiHasNoItems() {
         LocalTourismApiResponse.Body body = new LocalTourismApiResponse.Body(null, 0, 1, 0);
         LocalTourismApiResponse response = new LocalTourismApiResponse(
                 new LocalTourismApiResponse.Response(null, body));
         when(localTourismClient.getLocalTourism("202504", "26350", 1, 10))
                 .thenReturn(Mono.just(response));
 
-        StepVerifier.create(service().getLocalTourism("202504", "26350", 1, 10))
+        StepVerifier.create(service(true).getLocalTourism("202504", "26350", 1, 10))
                 .assertNext(result -> assertThat(result.places()).isEmpty())
                 .verifyComplete();
     }
 
     @Test
-    void 연관_관광지_검색결과가_없으면_빈_장소목록을_돌려준다() {
-        RelatedTourismApiResponse.Body body = new RelatedTourismApiResponse.Body(null, 0, 1, 0);
-        RelatedTourismApiResponse response = new RelatedTourismApiResponse(
-                new RelatedTourismApiResponse.Response(null, body));
-        when(relatedTourismClient.searchRelatedTourism("202504", "26350", "존재하지않는장소12345", 1, 10))
+    void searchReturnsAnEmptyListWhenTheConfiguredLiveApiHasNoItems() {
+        LocalTourismApiResponse.Body body = new LocalTourismApiResponse.Body(null, 0, 1, 0);
+        LocalTourismApiResponse response = new LocalTourismApiResponse(
+                new LocalTourismApiResponse.Response(null, body));
+        when(localTourismClient.getLocalTourism("202504", "26350", 1, 20))
                 .thenReturn(Mono.just(response));
 
-        StepVerifier.create(service().searchRelatedTourism(
-                        "202504", "26350", "존재하지않는장소12345", 1, 10))
+        StepVerifier.create(service(true).searchRelatedTourism("202504", "26350", "없는장소", 1, 10))
                 .assertNext(result -> assertThat(result.places()).isEmpty())
+                .verifyComplete();
+    }
+
+    @Test
+    void searchReturnsDemoPlacesWhenTheTourismApiKeyIsMissing() {
+        StepVerifier.create(service(false).searchRelatedTourism("202504", "26350", "야경", 1, 10))
+                .assertNext(result -> {
+                    assertThat(result.places()).isNotEmpty();
+                    assertThat(result.places()).allSatisfy(place -> {
+                        assertThat(place.latitude()).isNotNull();
+                        assertThat(place.longitude()).isNotNull();
+                    });
+                })
                 .verifyComplete();
     }
 }

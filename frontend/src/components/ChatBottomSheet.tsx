@@ -1,116 +1,73 @@
-import {FormEvent, PointerEvent as ReactPointerEvent, useMemo, useRef, useState} from "react";
-import {chat} from "../api";
-import type {ChatMessage} from "../types";
+import { useEffect, useRef, useState } from "react";
+import type { FormEvent } from "react";
+import { chat } from "../api";
+import type { ChatMessage } from "../types";
 
 interface Props {
-    context: unknown;
+  context: unknown;
 }
 
-const CLOSED = 82;
-export default function ChatBottomSheet({context}: Props) {
-    const max = useMemo(() => Math.round(window.innerHeight * .88), []);
-    const half = useMemo(() => Math.round(window.innerHeight * .54), []);
-    const [height, setHeight] = useState(CLOSED);
-    const [drag, setDrag] = useState<{ y: number; height: number }>();
-    const [input, setInput] = useState("");
-    const [loading, setLoading] = useState(false);
-    const [suggestions, setSuggestions] = useState(["비 안 맞는 코스로 바꿔줘", "덜 걷는 일정으로 바꿔줘", "숨은 명소를 추가해줘", "지금 주변 맛집 추천해줘"]);
-    const [messages, setMessages] = useState<ChatMessage[]>([{
-        id: crypto.randomUUID(),
-        role: "assistant",
-        content: "안녕하세요. 현재 위치와 여행 경로를 바탕으로 일정을 함께 조정해드릴게요.",
-        createdAt: new Date().toISOString()
-    }]);
-    const scroll = useRef<HTMLDivElement | null>(null);
-    const open = height > CLOSED + 20;
+const INITIAL_SUGGESTIONS = ["비가 오면 실내 코스로 바꿔줘", "지금 근처 카페를 추천해줘", "걷는 시간을 줄여줘", "야경 명소를 추가해줘"];
 
-    function snap(h: number) {
-        const points = [CLOSED, half, max];
-        setHeight(points.reduce((a, b) => Math.abs(b - h) < Math.abs(a - h) ? b : a));
+export default function ChatBottomSheet({ context }: Props) {
+  const [open, setOpen] = useState(false);
+  const [input, setInput] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [suggestions, setSuggestions] = useState(INITIAL_SUGGESTIONS);
+  const [messages, setMessages] = useState<ChatMessage[]>([
+    { id: "welcome", role: "assistant", content: "안녕하세요. 저는 부산 여행을 함께 조율하는 ROAMATE예요. 일정이나 지금 상황을 편하게 말해 주세요.", createdAt: new Date().toISOString() },
+  ]);
+  const scrollRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
+  }, [messages, loading]);
+
+  const send = async (text: string) => {
+    const value = text.trim();
+    if (!value || loading) return;
+
+    const userMessage: ChatMessage = { id: crypto.randomUUID(), role: "user", content: value, createdAt: new Date().toISOString() };
+    const history = [...messages, userMessage];
+    setMessages(history);
+    setInput("");
+    setOpen(true);
+    setLoading(true);
+
+    try {
+      const response = await chat(value, history, context);
+      setMessages((current) => [...current, { id: crypto.randomUUID(), role: "assistant", content: response.message, createdAt: new Date().toISOString() }]);
+      if (response.suggestedActions.length) setSuggestions(response.suggestedActions.slice(0, 4));
+    } catch (caughtError) {
+      const detail = caughtError instanceof Error ? caughtError.message : "연결 오류";
+      setMessages((current) => [...current, { id: crypto.randomUUID(), role: "assistant", content: `AI 메이트에 연결하지 못했어요. (${detail}) 잠시 후 다시 시도해 주세요.`, createdAt: new Date().toISOString() }]);
+    } finally {
+      setLoading(false);
     }
+  };
 
-    function down(e: ReactPointerEvent<HTMLDivElement>) {
-        e.currentTarget.setPointerCapture(e.pointerId);
-        setDrag({y: e.clientY, height});
-    }
+  const submit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    void send(input);
+  };
 
-    function move(e: ReactPointerEvent<HTMLDivElement>) {
-        if (!drag) return;
-        setHeight(Math.max(CLOSED, Math.min(max, drag.height + drag.y - e.clientY)));
-    }
-
-    function up() {
-        snap(height);
-        setDrag(undefined);
-    }
-
-    async function submit(text: string) {
-        const value = text.trim();
-        if (!value || loading) return;
-        if (!open) setHeight(half);
-        const user: ChatMessage = {
-            id: crypto.randomUUID(),
-            role: "user",
-            content: value,
-            createdAt: new Date().toISOString()
-        };
-        const history = [...messages, user];
-        setMessages(history);
-        setInput("");
-        setLoading(true);
-        try {
-            const response = await chat(value, history, context);
-            setMessages(v => [...v, {
-                id: crypto.randomUUID(),
-                role: "assistant",
-                content: response.message,
-                createdAt: new Date().toISOString()
-            }]);
-            if (response.suggestedActions?.length) setSuggestions(response.suggestedActions.slice(0, 4));
-            setTimeout(() => scroll.current?.scrollTo({top: scroll.current.scrollHeight, behavior: "smooth"}), 30);
-        } catch (e) {
-            setMessages(v => [...v, {
-                id: crypto.randomUUID(),
-                role: "assistant",
-                content: e instanceof Error ? `연결 오류: ${e.message}` : "AI 연결 오류",
-                createdAt: new Date().toISOString()
-            }]);
-        } finally {
-            setLoading(false);
-        }
-    }
-
-    function onSubmit(e: FormEvent) {
-        e.preventDefault();
-        void submit(input);
-    }
-
-    return <section className={`chat-sheet ${open ? "open" : ""}`} style={{height}}>
-        <div className="chat-drag-zone" onPointerDown={down} onPointerMove={move} onPointerUp={up} onPointerCancel={up}>
-            <span className="drag-handle"/>
-            <button className="chat-peek" onClick={() => setHeight(open ? CLOSED : half)}><span
-                className="chat-orb">✦</span><span><strong>ROAMATE AI</strong><small>{open ? "끌어내리면 대화방이 닫혀요" : "누르거나 끌어올려 대화를 시작하세요"}</small></span><b>{open ? "⌄" : "⌃"}</b>
-            </button>
+  return (
+    <section className={`chat-sheet ${open ? "open" : ""}`} style={{ height: open ? "min(560px, 78vh)" : 82 }}>
+      <div className="chat-drag-zone">
+        <span className="drag-handle" />
+        <button type="button" className="chat-peek" onClick={() => setOpen((value) => !value)} aria-expanded={open}>
+          <span className="chat-orb">✦</span><span><strong>ROAMATE AI 여행 메이트</strong><small>{open ? "대화를 접으려면 눌러 주세요" : "일정 변경이나 추천이 필요할 때 물어보세요"}</small></span><b>{open ? "⌄" : "⌃"}</b>
+        </button>
+      </div>
+      {open && <div className="chat-expanded">
+        <header><div><span className="chat-orb large">✦</span><div><strong>ROAMATE AI 여행 메이트</strong><small>현재 위치와 선택한 코스를 바탕으로 답합니다.</small></div></div><button type="button" onClick={() => setOpen(false)} aria-label="대화 닫기">×</button></header>
+        <div className="chat-messages" ref={scrollRef}>
+          {messages.map((message) => <article className={`chat-message ${message.role}`} key={message.id}>{message.role === "assistant" && <span className="message-avatar">✦</span>}<p>{message.content}</p></article>)}
+          {loading && <article className="chat-message assistant"><span className="message-avatar">✦</span><p className="typing"><i /><i /><i /></p></article>}
         </div>
-        <div className="chat-expanded">
-            <header>
-                <div><span className="chat-orb large">✦</span>
-                    <div><strong>ROAMATE AI 여행 비서</strong><small>현재 위치·장소·경로를 함께 이해합니다</small></div>
-                </div>
-                <button onClick={() => setHeight(CLOSED)}>×</button>
-            </header>
-            <div className="chat-messages" ref={scroll}>{messages.map(m => <article className={`chat-message ${m.role}`}
-                                                                                    key={m.id}>{m.role === "assistant" &&
-                <span className="message-avatar">✦</span>}<p>{m.content}</p></article>)}{loading &&
-                <article className="chat-message assistant"><span className="message-avatar">✦</span><p
-                    className="typing"><i/><i/><i/></p></article>}</div>
-            <div className="chat-suggestions">{suggestions.map(s => <button key={s}
-                                                                            onClick={() => void submit(s)}>{s}</button>)}</div>
-            <form className="chat-input" onSubmit={onSubmit}><input value={input}
-                                                                    onChange={e => setInput(e.target.value)}
-                                                                    placeholder="여행 상황이나 원하는 변화를 말해주세요"/>
-                <button disabled={loading}>↑</button>
-            </form>
-        </div>
-    </section>;
+        <div className="chat-suggestions">{suggestions.map((suggestion) => <button type="button" key={suggestion} onClick={() => void send(suggestion)} disabled={loading}>{suggestion}</button>)}</div>
+        <form className="chat-input" onSubmit={submit}><input value={input} onChange={(event) => setInput(event.target.value)} placeholder="여행 상황이나 원하는 변화를 말해 주세요" disabled={loading} /><button type="submit" disabled={!input.trim() || loading} aria-label="메시지 보내기">↑</button></form>
+      </div>}
+    </section>
+  );
 }

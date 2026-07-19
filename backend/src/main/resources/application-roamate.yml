@@ -1,5 +1,0 @@
-external-api:
-  naver-directions:
-    base-url: https://maps.apigw.ntruss.com
-    key-id: ${NAVER_DIRECTIONS_KEY_ID:}
-    key-secret: ${NAVER_DIRECTIONS_KEY_SECRET:}

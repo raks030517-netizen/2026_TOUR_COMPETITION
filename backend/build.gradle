@@ -8,9 +8,10 @@ group = 'com.busantrip'
 version = '0.0.1-SNAPSHOT'
 
 java {
-	toolchain {
-		languageVersion = JavaLanguageVersion.of(21)
-	}
+	// Java 21 API/bytecode compatibility is preserved, while a newer installed
+	// JDK can run the build without requiring a separate Java 21 toolchain.
+	sourceCompatibility = JavaVersion.VERSION_21
+	targetCompatibility = JavaVersion.VERSION_21
 }
 
 repositories {
@@ -59,4 +60,8 @@ dependencies {
 
 tasks.named('test') {
 	useJUnitPlatform()
+}
+
+tasks.withType(JavaCompile).configureEach {
+	options.release = 21
 }

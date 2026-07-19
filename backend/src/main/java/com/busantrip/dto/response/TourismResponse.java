@@ -9,6 +9,11 @@ public record TourismResponse(
         int totalCount,
         int pageNo,
         int numOfRows,
-        List<PlaceResponse> places
+        List<PlaceResponse> places,
+        String source
 ) {
+
+    public TourismResponse(int totalCount, int pageNo, int numOfRows, List<PlaceResponse> places) {
+        this(totalCount, pageNo, numOfRows, places, "live");
+    }
 }

@@ -27,6 +27,11 @@ button {
     cursor: pointer
 }
 
+button:disabled {
+    cursor: not-allowed;
+    opacity: .55
+}
+
 .page {
     width: min(1720px, calc(100% - 36px));
     margin: auto;
@@ -140,6 +145,8 @@ button {
 }
 
 .location i {
+    display: grid;
+    place-items: center;
     width: 14px;
     height: 14px;
     border-radius: 50%;
@@ -249,6 +256,19 @@ button {
     place-content: center;
     background: #121526;
     color: #ff8c9a
+}
+
+.map-error strong, .map-error span {
+    display: block;
+    max-width: 420px;
+    text-align: center
+}
+
+.map-error span {
+    margin-top: 8px;
+    color: #b6bed0;
+    font-size: 12px;
+    line-height: 1.6
 }
 
 .current-location-marker {
@@ -419,7 +439,7 @@ button {
 
 .timeline {
     display: grid;
-    grid-template-columns:repeat(5, minmax(0, 1fr));
+    grid-template-columns:repeat(6, minmax(0, 1fr));
     gap: 7px;
     margin-top: 13px
 }
