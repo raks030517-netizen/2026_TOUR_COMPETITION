@@ -5,11 +5,16 @@ import type { ChatMessage } from "../types";
 
 interface Props {
   context: unknown;
+  onAdjustment?: (message: string) => Promise<string | undefined>;
 }
 
 const INITIAL_SUGGESTIONS = ["비가 오면 실내 코스로 바꿔줘", "지금 근처 카페를 추천해줘", "걷는 시간을 줄여줘", "야경 명소를 추가해줘"];
 
-export default function ChatBottomSheet({ context }: Props) {
+function shouldAdjustPlan(message: string): boolean {
+  return /비|실내|우산|걷|피곤|택시|줄여|카페|휴식|야경|밤|노을|추가|바꿔|변경/.test(message);
+}
+
+export default function ChatBottomSheet({ context, onAdjustment }: Props) {
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -35,8 +40,12 @@ export default function ChatBottomSheet({ context }: Props) {
     setLoading(true);
 
     try {
+      const adjustment = shouldAdjustPlan(value) && onAdjustment
+        ? await onAdjustment(value)
+        : undefined;
       const response = await chat(value, history, context);
-      setMessages((current) => [...current, { id: crypto.randomUUID(), role: "assistant", content: response.message, createdAt: new Date().toISOString() }]);
+      const content = adjustment ? `${adjustment}\n\n${response.message}` : response.message;
+      setMessages((current) => [...current, { id: crypto.randomUUID(), role: "assistant", content, createdAt: new Date().toISOString() }]);
       if (response.suggestedActions.length) setSuggestions(response.suggestedActions.slice(0, 4));
     } catch (caughtError) {
       const detail = caughtError instanceof Error ? caughtError.message : "연결 오류";

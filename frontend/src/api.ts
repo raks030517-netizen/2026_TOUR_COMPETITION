@@ -1,4 +1,11 @@
-import type { ChatMessage, Coordinate, OptimizedRoute, TourismPlace } from "./types";
+import type {
+  ChatMessage,
+  Coordinate,
+  ItineraryPlan,
+  ItineraryRequest,
+  OptimizedRoute,
+  TourismPlace,
+} from "./types";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL?.replace(/\/$/, "") ?? "http://localhost:8080";
 
@@ -68,5 +75,21 @@ export function chat(message: string, history: ChatMessage[], context: unknown):
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ message, history: history.slice(-12), context }),
+  });
+}
+
+export function planItinerary(payload: ItineraryRequest): Promise<ItineraryPlan> {
+  return request("/api/itineraries/plan", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+}
+
+export function adjustItinerary(itineraryRequest: ItineraryRequest, adjustment: string): Promise<ItineraryPlan> {
+  return request("/api/itineraries/adjust", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ request: itineraryRequest, adjustment }),
   });
 }

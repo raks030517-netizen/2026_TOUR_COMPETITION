@@ -54,6 +54,14 @@ public class DemoTourismCatalog {
         return new TourismResponse(selected.size(), safePage, safeRows, selected.subList(fromIndex, toIndex), "demo");
     }
 
+    /**
+     * 일정 생성기는 테마를 조합해 여러 날짜의 코스를 만들기 때문에 전체 좌표 카탈로그가
+     * 필요하다. 반환값은 불변 리스트라 호출자가 데모 원본을 변경할 수 없다.
+     */
+    public List<PlaceResponse> all() {
+        return PLACES;
+    }
+
     private boolean matches(PlaceResponse place, String keyword) {
         if (keyword.isBlank() || keyword.equals("부산") || keyword.equals("추천")) {
             return true;
