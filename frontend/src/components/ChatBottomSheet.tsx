@@ -69,7 +69,6 @@ export default function ChatBottomSheet({ context, onAdjustment }: Props) {
         </button>
       </div>
       {open && <div className="chat-expanded">
-        <header><div><span className="chat-orb large">✦</span><div><strong>ROAMATE AI 여행 메이트</strong><small>현재 위치와 선택한 코스를 바탕으로 답합니다.</small></div></div><button type="button" onClick={() => setOpen(false)} aria-label="대화 닫기">×</button></header>
         <div className="chat-messages" ref={scrollRef}>
           {messages.map((message) => <article className={`chat-message ${message.role}`} key={message.id}>{message.role === "assistant" && <span className="message-avatar">✦</span>}<p>{message.content}</p></article>)}
           {loading && <article className="chat-message assistant"><span className="message-avatar">✦</span><p className="typing"><i /><i /><i /></p></article>}
