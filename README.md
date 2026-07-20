@@ -8,8 +8,8 @@
 
 | 팀원 | 담당 영역 |
 | --- | --- |
-| 김나리 ([@narxkim](https://github.com/narxkim)) | Frontend · Timeline · State |
-| 백락원 ([@raks030517-netizen](https://github.com/raks030517-netizen)) | AI flow · Prompt · Demo |
+| 백락원 ([@raks030517-netizen](https://github.com/raks030517-netizen)) | Frontend · Timeline · State |
+| 김나리 ([@narxkim](https://github.com/narxkim)) | AI flow · Prompt · Demo |
 | 변준호 | Route · Map · 2-opt · GPS |
 | 한정욱 ([@mysun1034-cell](https://github.com/mysun1034-cell)) | Backend · API · Fallback |
 
