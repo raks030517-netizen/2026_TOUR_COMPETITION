@@ -4,6 +4,15 @@
 
 여행 일자·동행·이동수단·취향을 입력하면 현재 위치를 출발지로 삼아 방문 순서를 제안하고, 지도·경로·Gemma 대화로 다음 행동을 이어갈 수 있습니다. 외부 API 키가 없어도 발표와 기능 검증이 가능하도록 부산 대표 관광지, 경로, 날씨·교통 상태, 대화의 데모 폴백을 내장했습니다.
 
+## 팀 구성
+
+| 팀원 | 담당 영역 |
+| --- | --- |
+| chrishan ([@mysun1034-cell](https://github.com/mysun1034-cell)) | Backend · API · Fallback |
+| narxkim ([@narxkim](https://github.com/narxkim)) | Frontend · Timeline · State |
+| nari ([@raks030517-netizen](https://github.com/raks030517-netizen)) | AI flow · Prompt · Demo |
+| junho | Route · Map · 2-opt · GPS |
+
 ## 핵심 사용자 흐름
 
 1. 여행 일자, 테마, 동행, 이동수단, 여행 속도를 선택합니다.
@@ -30,7 +39,23 @@
 - Backend: Java 21, Spring Boot, WebFlux, Gradle
 - External APIs: 한국관광공사, 네이버 지도/길찾기/지역검색, Gemma hosted endpoint, 기상청·부산 ITS 확장 엔드포인트
 
+AI 대화 기능은 Spring Boot WebFlux의 `WebClient`로 Google Generative Language API(Gemma 모델)를 직접 호출하는 방식입니다. Spring AI 프레임워크(`ChatClient`/`ChatModel` 등)는 사용하지 않습니다.
+
 현재 MVP는 별도 데이터베이스 없이 외부 데이터와 데모 카탈로그로 동작합니다. 회원·저장·즐겨찾기 기능은 다음 확장 단계의 범위입니다.
+
+## 아키텍처
+
+```mermaid
+flowchart LR
+    User[사용자 브라우저] --> FE["Frontend<br/>React 19 + Vite"]
+    FE -->|REST| BE["Backend<br/>Spring Boot + WebFlux"]
+    BE --> Tourism[한국관광공사 API]
+    BE --> NaverSearch[네이버 지역검색 API]
+    BE --> NaverMap[네이버 지도/길찾기 API]
+    BE --> Weather[기상청 단기예보 API]
+    BE --> Traffic["부산 ITS 교통량 API<br/>(AVI)"]
+    BE -->|"WebClient, 직접 HTTP 호출"| Gemma["Google Generative Language API<br/>(Gemma 모델)"]
+```
 
 ## 실행 방법
 
