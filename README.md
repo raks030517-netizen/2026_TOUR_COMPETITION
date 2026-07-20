@@ -8,10 +8,10 @@
 
 | 팀원 | 담당 영역 |
 | --- | --- |
-| chrishan ([@mysun1034-cell](https://github.com/mysun1034-cell)) | Backend · API · Fallback |
-| narxkim ([@narxkim](https://github.com/narxkim)) | Frontend · Timeline · State |
-| nari ([@raks030517-netizen](https://github.com/raks030517-netizen)) | AI flow · Prompt · Demo |
-| junho | Route · Map · 2-opt · GPS |
+| 김나리 ([@narxkim](https://github.com/narxkim)) | Frontend · Timeline · State |
+| 백락원 ([@raks030517-netizen](https://github.com/raks030517-netizen)) | AI flow · Prompt · Demo |
+| 변준호 | Route · Map · 2-opt · GPS |
+| 한정욱 ([@mysun1034-cell](https://github.com/mysun1034-cell)) | Backend · API · Fallback |
 
 ## 핵심 사용자 흐름
 
