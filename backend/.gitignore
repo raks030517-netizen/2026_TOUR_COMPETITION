@@ -45,3 +45,7 @@ application-local.yml
 
 ### VS Code ###
 .vscode/
+
+# 빌드/실행 로그 덤프 (실수 커밋 방지)
+error.txt
+*.log
