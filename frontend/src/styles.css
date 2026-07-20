@@ -1,11 +1,11 @@
 :root {
     font-family: Inter, Pretendard, "Noto Sans KR", system-ui, sans-serif;
-    color: #eef1ff;
-    background: #070912;
-    --cyan: #65e8ff;
-    --purple: #805cff;
-    --muted: #9198b1;
-    --line: rgba(255, 255, 255, .1)
+    color: #202534;
+    background: #f4f6fb;
+    --cyan: #6c55ff;
+    --purple: #7448ff;
+    --muted: #7f8797;
+    --line: rgba(31, 39, 62, .09)
 }
 
 * {
@@ -16,7 +16,7 @@ body {
     margin: 0;
     min-width: 320px;
     min-height: 100vh;
-    background: radial-gradient(circle at 50% -10%, rgba(79, 108, 255, .22), transparent 38rem), radial-gradient(circle at 0 45%, rgba(137, 70, 255, .14), transparent 32rem), #070912
+    background: radial-gradient(circle at 50% -10%, rgba(111, 83, 255, .11), transparent 38rem), radial-gradient(circle at 0 45%, rgba(84, 177, 255, .08), transparent 32rem), linear-gradient(180deg, #fbfcff 0%, #f2f5fb 100%)
 }
 
 button, input {
@@ -62,7 +62,7 @@ button:disabled {
 .brand > span {
     color: var(--cyan);
     font-size: 34px;
-    filter: drop-shadow(0 0 18px rgba(101, 232, 255, .75))
+    filter: drop-shadow(0 8px 18px rgba(105, 84, 255, .22))
 }
 
 .brand strong, .brand small {
@@ -90,7 +90,7 @@ button:disabled {
 
 .brand-panel h1 em {
     color: transparent;
-    background: linear-gradient(90deg, var(--cyan), #b18cff);
+    background: linear-gradient(90deg, #5d45ef, #8e61ff);
     -webkit-background-clip: text;
     background-clip: text;
     font-style: normal
@@ -111,7 +111,7 @@ button:disabled {
     padding: 13px;
     border: 1px solid var(--line);
     border-radius: 18px;
-    background: rgba(255, 255, 255, .04)
+    background: rgba(255, 255, 255, .82)
 }
 
 .feature > span {
@@ -120,7 +120,7 @@ button:disabled {
     width: 50px;
     height: 50px;
     border-radius: 15px;
-    background: rgba(102, 89, 255, .16);
+    background: linear-gradient(145deg, #f4f0ff, #ebe7ff);
     color: var(--cyan);
     font-size: 22px
 }
@@ -137,10 +137,10 @@ button:disabled {
     width: 100%;
     margin-top: 18px;
     padding: 16px;
-    border: 1px solid rgba(101, 232, 255, .18);
+    border: 1px solid rgba(108, 85, 255, .15);
     border-radius: 19px;
-    background: rgba(14, 24, 42, .78);
-    color: white;
+    background: linear-gradient(145deg, rgba(255, 255, 255, .97), rgba(246, 244, 255, .95));
+    color: #202534;
     text-align: left
 }
 
@@ -168,17 +168,17 @@ button:disabled {
     position: relative;
     overflow: hidden;
     min-height: 930px;
-    border: 1px solid rgba(255, 255, 255, .12);
+    border: 1px solid rgba(31, 39, 62, .08);
     border-radius: 36px;
-    background: #121526;
-    box-shadow: 0 35px 100px rgba(0, 0, 0, .36)
+    background: #ffffff;
+    box-shadow: 0 30px 80px rgba(43, 52, 82, .10)
 }
 
 .search {
     position: relative;
     z-index: 20;
     padding: 20px 22px 11px;
-    background: rgba(12, 15, 28, .86);
+    background: rgba(255, 255, 255, .94);
     backdrop-filter: blur(22px)
 }
 
@@ -191,7 +191,7 @@ button:disabled {
     padding: 7px 9px 7px 16px;
     border: 1px solid var(--line);
     border-radius: 18px;
-    background: rgba(255, 255, 255, .07)
+    background: #f7f8fc
 }
 
 .search form > span {
@@ -204,15 +204,15 @@ button:disabled {
     border: 0;
     outline: 0;
     background: transparent;
-    color: white
+    color: #202534
 }
 
 .search form button, .action button, .status button {
     border: 0;
     border-radius: 12px;
     padding: 12px 17px;
-    background: linear-gradient(135deg, #5e73ff, #984eff);
-    color: white;
+    background: linear-gradient(135deg, #7659ff, #6038ef);
+    color: #202534;
     font-size: 10px;
     font-weight: 900
 }
@@ -229,8 +229,8 @@ button:disabled {
     border: 1px solid rgba(255, 255, 255, .08);
     border-radius: 999px;
     padding: 8px 13px;
-    background: rgba(255, 255, 255, .045);
-    color: #a7aec2
+    background: #ffffff;
+    color: #737b8b
 }
 
 .viewport {
@@ -254,7 +254,7 @@ button:disabled {
     inset: 0;
     display: grid;
     place-content: center;
-    background: #121526;
+    background: #ffffff;
     color: #ff8c9a
 }
 
@@ -262,7 +262,7 @@ button:disabled {
     position: relative;
     z-index: 20;
     padding: 18px 22px 13px;
-    background: rgba(12, 15, 28, .9);
+    background: rgba(255, 255, 255, .97);
     backdrop-filter: blur(22px)
 }
 
@@ -293,10 +293,10 @@ button:disabled {
 }
 
 .planner-heading > span {
-    border: 1px solid rgba(101, 232, 255, .18);
+    border: 1px solid rgba(108, 85, 255, .15);
     border-radius: 999px;
     padding: 7px 10px;
-    color: #b8eefa;
+    color: #6551dc;
     font-size: 9px
 }
 
@@ -307,7 +307,7 @@ button:disabled {
 .planner-row label {
     display: grid;
     gap: 5px;
-    color: #9fa8c1;
+    color: #7c8494;
     font-size: 9px
 }
 
@@ -316,13 +316,13 @@ button:disabled {
     border: 1px solid var(--line);
     border-radius: 10px;
     padding: 9px 10px;
-    background: rgba(255, 255, 255, .06);
-    color: white;
+    background: #f8f9fc;
+    color: #202534;
     outline: 0
 }
 
 .planner select option {
-    background: #151a2d
+    background: #ffffff
 }
 
 .dates {
@@ -343,17 +343,17 @@ button:disabled {
 
 .theme-chips button {
     flex: 0 0 auto;
-    border: 1px solid rgba(255, 255, 255, .1);
+    border: 1px solid rgba(31, 39, 62, .09);
     border-radius: 999px;
     padding: 7px 10px;
-    background: rgba(255, 255, 255, .045);
-    color: #afb6c8;
+    background: #ffffff;
+    color: #747c8c;
     font-size: 10px
 }
 
 .theme-chips button.selected {
-    border-color: rgba(101, 232, 255, .55);
-    background: rgba(101, 232, 255, .15);
+    border-color: rgba(108, 85, 255, .30);
+    background: #eeeaff;
     color: white
 }
 
@@ -366,8 +366,8 @@ button:disabled {
     border: 0;
     border-radius: 11px;
     padding: 11px 14px;
-    background: linear-gradient(135deg, #5e73ff, #984eff);
-    color: white;
+    background: linear-gradient(135deg, #7659ff, #6038ef);
+    color: #202534;
     font-size: 10px;
     font-weight: 900;
     white-space: nowrap
@@ -395,7 +395,7 @@ button:disabled {
 
 .map-error span {
     margin-top: 8px;
-    color: #b6bed0;
+    color: #7f8797;
     font-size: 12px;
     line-height: 1.6
 }
@@ -422,8 +422,8 @@ button:disabled {
     top: 37px;
     padding: 4px 7px;
     border-radius: 8px;
-    background: rgba(10, 16, 30, .86);
-    color: white;
+    background: rgba(38, 43, 57, .88);
+    color: #202534;
     font-size: 9px
 }
 
@@ -434,13 +434,13 @@ button:disabled {
     height: 48px;
     border: 4px solid white;
     border-radius: 50% 50% 50% 12px;
-    background: linear-gradient(145deg, #705cff, #a145ef);
+    background: linear-gradient(145deg, #765fff, #6740ed);
     transform: rotate(-45deg);
-    box-shadow: 0 10px 25px rgba(77, 45, 182, .35)
+    box-shadow: 0 10px 25px rgba(88, 67, 199, .28)
 }
 
 .place-marker span {
-    color: white;
+    color: #202534;
     font-weight: 900;
     transform: rotate(45deg)
 }
@@ -448,7 +448,7 @@ button:disabled {
 .place-marker.selected {
     width: 56px;
     height: 56px;
-    background: linear-gradient(145deg, #278cff, #7450ff);
+    background: linear-gradient(145deg, #4b82ff, #7251ff);
     box-shadow: 0 0 0 8px rgba(65, 118, 255, .15)
 }
 
@@ -480,10 +480,10 @@ button:disabled {
     gap: 11px;
     width: 275px;
     padding: 11px;
-    border: 1px solid rgba(255, 255, 255, .35);
+    border: 1px solid rgba(31, 39, 62, .08);
     border-radius: 18px;
-    background: rgba(8, 15, 31, .86);
-    color: white;
+    background: rgba(255, 255, 255, .95);
+    color: #202534;
     text-align: left
 }
 
@@ -502,15 +502,15 @@ button:disabled {
     grid-template-columns:45px 1fr;
     gap: 3px 8px;
     padding: 10px 12px;
-    border: 1px solid rgba(255, 255, 255, .16);
+    border: 1px solid rgba(31, 39, 62, .08);
     border-radius: 14px;
-    background: rgba(8, 15, 31, .87);
-    color: #c0c7d7;
+    background: rgba(255, 255, 255, .94);
+    color: #5f6675;
     font-size: 10px
 }
 
 .signal-strip > span.live {
-    border-color: rgba(101, 232, 255, .32)
+    border-color: rgba(108, 85, 255, .22)
 }
 
 .signal-strip b {
@@ -520,7 +520,7 @@ button:disabled {
 
 .signal-strip small {
     grid-column: 2;
-    color: #919ab0;
+    color: #898f9e;
     font-size: 8px
 }
 
@@ -541,7 +541,7 @@ button:disabled {
 }
 
 .place-card b {
-    color: #9ca5be;
+    color: #818897;
     font-size: 10px
 }
 
@@ -556,9 +556,9 @@ button:disabled {
     gap: 11px;
     align-items: center;
     padding: 15px;
-    border: 1px solid rgba(255, 255, 255, .35);
+    border: 1px solid rgba(31, 39, 62, .08);
     border-radius: 19px;
-    background: rgba(8, 14, 30, .87);
+    background: rgba(255, 255, 255, .95);
     color: white
 }
 
@@ -590,7 +590,7 @@ button:disabled {
     min-height: 250px;
     padding: 18px 19px 40px;
     border-radius: 26px 26px 0 0;
-    background: rgba(9, 13, 27, .96)
+    background: rgba(255, 255, 255, .97)
 }
 
 .dock header {
@@ -613,17 +613,17 @@ button:disabled {
 .timeline button {
     position: relative;
     min-width: 0;
-    border: 1px solid rgba(255, 255, 255, .07);
+    border: 1px solid rgba(31, 39, 62, .07);
     border-radius: 13px;
     padding: 6px;
-    background: rgba(255, 255, 255, .04);
-    color: white;
+    background: rgba(255, 255, 255, .82);
+    color: #202534;
     text-align: left
 }
 
 .timeline button.selected {
     border-color: rgba(101, 232, 255, .4);
-    background: rgba(80, 103, 255, .16)
+    background: #f1edff
 }
 
 .timeline i {
@@ -660,7 +660,7 @@ button:disabled {
 }
 
 .timeline small {
-    color: #8d95ab;
+    color: #8a91a0;
     font-size: 8px
 }
 
@@ -691,7 +691,7 @@ button:disabled {
     padding: 20px;
     border: 1px solid var(--line);
     border-radius: 22px;
-    background: linear-gradient(145deg, rgba(23, 27, 48, .9), rgba(10, 13, 27, .86))
+    background: linear-gradient(145deg, rgba(255, 255, 255, .97), rgba(248, 249, 253, .94))
 }
 
 .status small {
@@ -715,7 +715,7 @@ button:disabled {
     grid-template-columns:24px 1fr;
     gap: 8px;
     align-items: center;
-    background: rgba(255, 255, 255, .04)
+    background: rgba(255, 255, 255, .82)
 }
 
 .status article:last-child button.selected {
@@ -739,7 +739,7 @@ button:disabled {
 
 .status .alert {
     margin: 7px 0 0;
-    color: #c6d3ff
+    color: #5d6291
 }
 
 .day-summary {
@@ -757,13 +757,13 @@ button:disabled {
 }
 
 .day-summary span {
-    color: #aab2c5;
+    color: #666e7d;
     font-size: 10px
 }
 
 .day-summary small {
     grid-column: 1 / -1;
-    color: #9098ae;
+    color: #858c9a;
     font-size: 10px;
     line-height: 1.55
 }
@@ -775,11 +775,11 @@ button:disabled {
     bottom: 0;
     left: max(18px, calc((100vw - 1720px) / 2 + 332px));
     overflow: hidden;
-    border: 1px solid rgba(255, 255, 255, .14);
+    border: 1px solid rgba(78, 66, 150, .11);
     border-bottom: 0;
     border-radius: 26px 26px 0 0;
-    background: rgba(8, 11, 24, .97);
-    box-shadow: 0 -28px 80px rgba(0, 0, 0, .38);
+    background: linear-gradient(180deg, rgba(255, 255, 255, .99), rgba(247, 245, 255, .99));
+    box-shadow: 0 -24px 70px rgba(72, 61, 137, .14);
     transition: height .28s;
     backdrop-filter: blur(26px)
 }
@@ -795,7 +795,7 @@ button:disabled {
     height: 5px;
     margin: 8px auto 5px;
     border-radius: 999px;
-    background: rgba(255, 255, 255, .22)
+    background: rgba(84, 84, 105, .24)
 }
 
 .chat-peek {
@@ -807,7 +807,7 @@ button:disabled {
     padding: 7px 18px 14px;
     border: 0;
     background: transparent;
-    color: white;
+    color: #202534;
     text-align: left
 }
 
@@ -826,7 +826,7 @@ button:disabled {
 }
 
 .chat-peek small {
-    color: #8f97ad;
+    color: #838a9a;
     font-size: 9px
 }
 
@@ -864,14 +864,14 @@ button:disabled {
 }
 
 .chat-expanded header small {
-    color: #8e96ab;
+    color: #858c9a;
     font-size: 9px
 }
 
 .chat-expanded header > button {
     border: 0;
     background: transparent;
-    color: #aaa;
+    color: #7c8290;
     font-size: 24px
 }
 
@@ -901,7 +901,7 @@ button:disabled {
     margin: 0;
     padding: 11px 13px;
     border-radius: 15px 15px 15px 5px;
-    background: rgba(255, 255, 255, .07);
+    background: #f7f8fc;
     font-size: 11px;
     line-height: 1.65;
     white-space: pre-wrap
@@ -909,7 +909,7 @@ button:disabled {
 
 .chat-message.user p {
     border-radius: 15px 15px 5px 15px;
-    background: linear-gradient(135deg, #536fff, #934eff)
+    background: linear-gradient(135deg, #775aff, #6038ed)
 }
 
 .typing {
@@ -949,11 +949,11 @@ button:disabled {
 
 .chat-suggestions button {
     flex: 0 0 auto;
-    border: 1px solid rgba(101, 232, 255, .16);
+    border: 1px solid rgba(108, 85, 255, .14);
     border-radius: 999px;
     padding: 8px 11px;
-    background: rgba(101, 232, 255, .05);
-    color: #c7eefa;
+    background: #f4f1ff;
+    color: #5e4ad2;
     font-size: 9px
 }
 
@@ -969,7 +969,7 @@ button:disabled {
     border: 1px solid var(--line);
     border-radius: 14px;
     padding: 13px;
-    background: rgba(255, 255, 255, .05);
+    background: #f5f6fa;
     color: white
 }
 
@@ -977,8 +977,8 @@ button:disabled {
     width: 45px;
     border: 0;
     border-radius: 14px;
-    background: linear-gradient(135deg, var(--cyan), var(--purple));
-    color: white;
+    background: linear-gradient(135deg, #785cff, #6239ed);
+    color: #202534;
     font-size: 19px
 }
 
@@ -1085,4 +1085,391 @@ button:disabled {
     .status {
         padding: 0 12px
     }
+}
+
+/* 버튼·배지·마커는 명도 대비를 위해 흰색 글자를 유지 */
+.search form button,
+.selects button,
+.quick-search button,
+.action button,
+.status button,
+.chat-input button,
+.timeline i,
+.place-marker span,
+.current-location-marker b,
+.core,
+.chat-orb,
+.message-avatar {
+    color: #ffffff;
+}
+
+/* 라이트 UI 디테일 및 상호작용 */
+.brand-panel,
+.status article,
+.feature {
+    box-shadow: 0 18px 48px rgba(43, 52, 82, .07);
+    backdrop-filter: blur(22px);
+    -webkit-backdrop-filter: blur(22px);
+}
+
+.feature,
+.location,
+.status article,
+.timeline button,
+.map-controls button,
+.theme-chips button,
+.search form button,
+.selects button,
+.quick-search button,
+.action button,
+.status button,
+.chat-input button {
+    transition: border-color .18s ease, background .18s ease, box-shadow .18s ease, transform .18s ease, color .18s ease;
+}
+
+.feature:hover,
+.status article:hover {
+    border-color: rgba(108, 85, 255, .16);
+    box-shadow: 0 22px 56px rgba(43, 52, 82, .10);
+}
+
+.location:hover,
+.timeline button:hover,
+.theme-chips button:hover {
+    border-color: rgba(108, 85, 255, .20);
+    transform: translateY(-1px);
+}
+
+.search form:focus-within,
+.planner input:focus,
+.planner select:focus,
+.chat-input input:focus {
+    border-color: rgba(108, 85, 255, .40);
+    box-shadow: 0 0 0 4px rgba(108, 85, 255, .07);
+}
+
+.search input::placeholder,
+.planner input::placeholder,
+.chat-input input::placeholder {
+    color: #979daa;
+}
+
+.place-card,
+.signal-strip > span,
+.action {
+    box-shadow: 0 16px 40px rgba(40, 51, 81, .14);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+}
+
+.dock {
+    border-top: 1px solid rgba(31, 39, 62, .07);
+    box-shadow: 0 -18px 45px rgba(44, 52, 79, .07);
+    backdrop-filter: blur(22px);
+    -webkit-backdrop-filter: blur(22px);
+}
+
+.timeline button {
+    box-shadow: 0 8px 20px rgba(46, 55, 85, .055);
+}
+
+.status h2,
+.status h3,
+.planner-heading strong,
+.dock header,
+.timeline strong,
+.chat-peek,
+.chat-expanded header strong,
+.chat-message p {
+    color: #202534;
+}
+
+.chat-message.user p {
+    color: #ffffff;
+}
+
+.chat-suggestions button {
+    color: #5e4ad2;
+}
+
+.chat-input input {
+    color: #242936;
+}
+
+/* =========================================================
+   비로그인 계정 카드
+   실제 인물 사진은 숨기고 중립적인 사람 실루엣만 표시
+   account/profile/user 관련 클래스명을 폭넓게 지원
+   ========================================================= */
+
+.brand-panel [class*="account"],
+.brand-panel [class*="profile"],
+.brand-panel [class*="user"] {
+    position: relative;
+}
+
+.brand-panel [class*="account"] img,
+.brand-panel [class*="profile"] img,
+.brand-panel [class*="user"] img {
+    visibility: hidden;
+}
+
+.brand-panel [class*="account"]::before,
+.brand-panel [class*="profile"]::before,
+.brand-panel [class*="user"]::before {
+    content: "";
+    display: block;
+    width: 46px;
+    height: 46px;
+    flex: 0 0 46px;
+    border: 1px solid rgba(31, 39, 62, .08);
+    border-radius: 50%;
+    background:
+        radial-gradient(circle at 50% 34%, #8d94a3 0 17%, transparent 18%),
+        radial-gradient(ellipse at 50% 92%, #8d94a3 0 31%, transparent 32%),
+        linear-gradient(145deg, #f4f5f9, #e7eaf1);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, .95),
+        0 8px 20px rgba(49, 58, 85, .09);
+}
+
+/* 흔히 쓰는 명시적 계정 카드 클래스 지원 */
+.account-card,
+.profile-card,
+.user-card {
+    border: 1px solid rgba(31, 39, 62, .075);
+    color: #202534;
+    background: rgba(255, 255, 255, .94);
+    box-shadow: 0 16px 42px rgba(43, 52, 82, .08);
+}
+
+.account-card small,
+.profile-card small,
+.user-card small {
+    color: #858c99;
+}
+
+/* 브라우저 자동완성 */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus {
+    -webkit-text-fill-color: #242936;
+    -webkit-box-shadow: 0 0 0 1000px #f8f9fc inset;
+}
+
+/* 접근성 */
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+[role="button"]:focus-visible {
+    outline: 3px solid rgba(108, 85, 255, .22);
+    outline-offset: 2px;
+}
+
+/* ========================================================================
+   PLANNER TYPOGRAPHY — 가독성 강화
+   일정 생성 영역의 글자 크기만 확대하며 레이아웃과 기능은 유지합니다.
+   ======================================================================== */
+
+.planner-heading small {
+    font-size: 11px;
+    font-weight: 800;
+    line-height: 1.3;
+    letter-spacing: .12em;
+}
+
+.planner-heading strong {
+    margin-top: 6px;
+    font-size: 20px;
+    font-weight: 800;
+    line-height: 1.35;
+    letter-spacing: -.025em;
+}
+
+.planner-heading > span {
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1.3;
+}
+
+.planner-row label {
+    gap: 7px;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.3;
+}
+
+.planner input,
+.planner select {
+    min-height: 46px;
+    padding: 11px 13px;
+    font-size: 14px;
+    font-weight: 650;
+    line-height: 1.35;
+}
+
+.planner input::placeholder {
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.theme-chips button {
+    min-height: 38px;
+    padding: 9px 14px;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.selects button,
+.quick-search button {
+    min-height: 46px;
+    padding: 12px 18px;
+    font-size: 12px;
+    font-weight: 800;
+    line-height: 1.2;
+}
+
+.quick-search input {
+    font-size: 14px;
+    font-weight: 550;
+}
+
+.quick-search input::placeholder {
+    font-size: 13px;
+    font-weight: 500;
+}
+
+/* 지도 위 신호·장소 카드도 모니터에서 읽기 쉽도록 소폭 확대 */
+
+.signal-strip > span {
+    font-size: 12px;
+    line-height: 1.4;
+}
+
+.signal-strip small {
+    font-size: 10px;
+    line-height: 1.4;
+}
+
+.place-card small {
+    font-size: 10px;
+    font-weight: 800;
+}
+
+.place-card strong {
+    font-size: 15px;
+    line-height: 1.35;
+}
+
+.place-card b {
+    font-size: 11px;
+    line-height: 1.4;
+}
+
+/* 넓은 데스크톱 화면에서는 한 단계 더 크게 */
+
+@media (min-width: 1400px) {
+    .planner-heading strong {
+        font-size: 22px;
+    }
+
+    .planner-row label {
+        font-size: 13px;
+    }
+
+    .planner input,
+    .planner select,
+    .quick-search input {
+        font-size: 15px;
+    }
+
+    .theme-chips button,
+    .selects button,
+    .quick-search button {
+        font-size: 13px;
+    }
+}
+
+/* 모바일에서는 입력 영역이 과도하게 커지지 않도록 조정 */
+
+@media (max-width: 650px) {
+    .planner-heading strong {
+        font-size: 18px;
+    }
+
+    .planner-row label {
+        font-size: 11px;
+    }
+
+    .planner input,
+    .planner select {
+        min-height: 44px;
+        font-size: 13px;
+    }
+
+    .theme-chips button {
+        min-height: 36px;
+        padding: 8px 12px;
+        font-size: 11px;
+    }
+}
+
+/* ========================================================================
+   PLANNER CONTRAST — 글자 대비 및 선택 상태 강화
+   ======================================================================== */
+
+/* 일정 생성 영역의 흐린 보조 글자를 한 단계 진하게 */
+.planner-heading small {
+    color: #5f50c9;
+}
+
+.planner-row label {
+    color: #596273;
+}
+
+.planner input,
+.planner select {
+    color: #171c28;
+}
+
+.planner input::placeholder,
+.quick-search input::placeholder {
+    color: #697181;
+    opacity: 1;
+}
+
+.theme-chips button {
+    color: #515a6a;
+    border-color: rgba(31, 39, 62, .11);
+    background: #ffffff;
+}
+
+/* 선택된 테마: 진한 보라 배경 + 흰 글씨 */
+.theme-chips button.selected {
+    color: #ffffff;
+    border-color: #5b35e8;
+    background: linear-gradient(135deg, #6d48ff 0%, #5428dd 100%);
+    box-shadow:
+        0 8px 20px rgba(84, 40, 221, .24),
+        inset 0 1px 0 rgba(255, 255, 255, .18);
+}
+
+/* 마우스 오버 시 선택 전 상태도 명확하게 */
+.theme-chips button:hover:not(.selected) {
+    color: #4f35c7;
+    border-color: rgba(91, 53, 232, .25);
+    background: #f2efff;
+}
+
+/* 키보드 포커스도 명확하게 */
+.theme-chips button:focus-visible {
+    outline: 3px solid rgba(91, 53, 232, .22);
+    outline-offset: 2px;
+}
+
+/* 선택된 버튼의 텍스트·아이콘은 강제로 흰색 유지 */
+.theme-chips button.selected,
+.theme-chips button.selected * {
+    color: #ffffff !important;
 }
